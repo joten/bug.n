@@ -30,7 +30,6 @@ Monitor_init(m, doRestore) {
     Config_restoreLayout(Config_filePath, m)
   SysGet, Monitor_#%m%_name, MonitorName, %m%
   Monitor_getWorkArea(m)
-  Debug_logMessage("DEBUG[0] Monitor_init: #" . m . ", name: " . Monitor_#%m%_name . ", x: " . Monitor_#%m%_x . ", y: " . Monitor_#%m%_y . ", w: " . Monitor_#%m%_w . ", h: " . Monitor_#%m%_h . ".", 0)
   If Not Monitor_#%m%_showTaskBar {
     Monitor_#%m%_showTaskBar := True
     Monitor_toggleTaskBar(m)
@@ -48,7 +47,6 @@ Monitor_activateView(i, d = 0) {
     i := Monitor_#%aMonitor%_aView_#1
   i := Manager_loop(i, d, 1, Config_viewCount)
 
-  Debug_logMessage("DEBUG[1] Monitor_activateView; i: " . i . ", d: " . d . ", Manager_aMonitor: " . aMonitor . ", wndIds: " . View_#%Manager_aMonitor%_#%i%_wndIds, 1)
   If (i <= 0) Or (i > Config_viewCount) Or Manager_hideShow
     Return
   ;; Re-arrange the windows on the active view.
@@ -145,7 +143,6 @@ Monitor_getWorkArea(m) {
   Local wndClasses, wndHeight, wndId, wndWidth, wndX, wndY
 
   SysGet, monitor, Monitor, %m%
-  Debug_logMessage("DEBUG[0] Monitor_getWorkArea: #" . m . ", l: " . monitorLeft . ", r: " . monitorRight . ", t: " . monitorTop . ", b: " . monitorBottom . ".", 0)
   
   wndClasses := "Shell_TrayWnd;Shell_SecondaryTrayWnd"
   ;; @TODO What about third and so forth TrayWnd?
@@ -162,7 +159,6 @@ Monitor_getWorkArea(m) {
         If (A_LoopField = "Shell_TrayWnd") Or (A_LoopField = "Shell_SecondaryTrayWnd")
           Monitor_#%m%_taskBarClass := A_LoopField
         
-        Debug_logMessage("DEBUG[3] Monitor_getWorkArea: #" . m . ", window class: " . A_LoopField . ", x: " . wndX . ", y: " . wndY . ", w: " . wndWidth . ", h: " . wndHeight . ".", 3)
         If (wndHeight < wndWidth) {
           ;; Horizontal
           If (wndY <= monitorTop) {

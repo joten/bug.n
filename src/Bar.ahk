@@ -40,7 +40,6 @@ Bar_init(m) {
   ;; Create the GUI window
   wndTitle := "bug.n_BAR_" m
   GuiN := (m - 1) + 1
-  Debug_logMessage("DEBUG[6] Bar_init(): Gui, " . GuiN . ": Default", 6)
   Gui, %GuiN%: Default
   Gui, Destroy
   Gui, +AlwaysOnTop -Caption +LabelBar_Gui +LastFound +ToolWindow
@@ -209,7 +208,6 @@ Bar_cmdGuiEnter:
     Bar_#0_#0 := ""
   } Else If (A_GuiControl = "Bar_#0_#1") {
     Gui, Submit, NoHide
-    Debug_logMessage("DEBUG[6] Bar_cmdGuiEnter; command: " . Bar_#0_#1, 6)
     Loop, Parse, Bar_#0_#1, `n, `r
       Main_evalCommand(A_LoopField)
   }
@@ -409,7 +407,6 @@ Bar_updateStatus() {
   Loop, % Manager_monitorCount {
     m := A_Index
     GuiN := (m - 1) + 1
-    Debug_logMessage("DEBUG[6] Bar_updateStatus(): Gui, " . GuiN . ": Default", 6)
     Gui, %GuiN%: Default
     If Config_readinBat {
       If (bat1 < 10) And (bat2 = "off") {
@@ -475,7 +472,6 @@ Bar_updateTitle() {
 
   Loop, % Manager_monitorCount {
     GuiN := (A_Index - 1) + 1
-    Debug_logMessage("DEBUG[6] Bar_updateTitle(): Gui, " . GuiN . ": Default", 6)
     Gui, %GuiN%: Default
     GuiControlGet, content, , Bar_#%A_Index%_title
     If (A_Index = Manager_aMonitor) {
@@ -492,7 +488,6 @@ Bar_updateView(m, v) {
 
   GuiN := (m - 1) + 1
   Gui, %GuiN%: Default
-  Debug_logMessage("DEBUG[6] Bar_updateView(): m: " . m . "; Gui, " . GuiN . ": Default", 6)
 
   StringTrimRight, wndIds, Manager_managedWndIds, 1
   StringSplit, managedWndId, wndIds, `;

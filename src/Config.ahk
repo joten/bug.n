@@ -270,7 +270,6 @@ Config_redirectHotkey(key)
   {
     If (key = Config_hotkey_#%A_index%_key)
     {
-      Debug_logMessage("DEBUG[1] Config_redirectHotkey: Found " Config_hotkey_#%A_index%_key " -> " Config_hotkey_#%A_index%_command, 1)
       Main_evalCommand(Config_hotkey_#%A_index%_command)
       Break
     }
@@ -294,7 +293,6 @@ Config_restoreConfig(filename)
       type := SubStr(var, 1, 13)
       If (type = "Config_hotkey")
       {
-        Debug_logMessage("Processing configured hotkey: " . A_LoopReadLine, 0)
         i := InStr(val, "::")
         key := SubStr(val, 1, i - 1)
         cmd := SubStr(val, i + 2)
@@ -302,7 +300,6 @@ Config_restoreConfig(filename)
           Hotkey, %key%, Off
         Else
         {
-          Debug_logMessage("  Hotkey: " . key . " -> " . cmd, 0)
           Config_hotkeyCount += 1
           Config_hotkey_#%Config_hotkeyCount%_key := key
           Config_hotkey_#%Config_hotkeyCount%_command := cmd
@@ -438,13 +435,6 @@ Config_UI_saveSession() {
 !9::View_moveWindow(9)
 !0::View_moveWindow(10)
 !BackSpace::View_toggleStackArea()
-
-;; Window debugging
-#^i::Debug_logViewWindowList()
-#^+i::Debug_logManagedWindowList()
-#^h::Debug_logHelp()
-#^d::Debug_setLogLevel(0, -1)
-#^+d::Debug_setLogLevel(0, +1)
 
 ;; Layout management
 #Tab::View_setLayout(-1)

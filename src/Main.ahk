@@ -34,10 +34,7 @@ SetWinDelay, 10
 
   Main_setup()
 
-  Debug_initLog(Main_logFile, 0, False)
-
-  Debug_logMessage("====== Initializing ======", 0)
-  Config_filePath := Main_appDir "\Config.ini"
+ Config_filePath := Main_appDir "\Config.ini"
   Config_init()
 
   Menu, Tray, Tip, %NAME% %VERSION%
@@ -52,17 +49,14 @@ SetWinDelay, 10
   Menu, Tray, Add, Exit, Main_quit
 
   Manager_init()
-  Debug_logMessage("====== Running ======", 0)
 Return          ;; end of the auto-execute section
 
 ;; Function & label definitions
 Main_cleanup:
-  Debug_logMessage("====== Cleaning up ======", 0)
   ;; Config_autoSaveSession as False is deprecated.
   If Not (Config_autoSaveSession = "off") And Not (Config_autoSaveSession = "False")
     Manager_saveState()
   Manager_cleanup()
-  Debug_logMessage("====== Exiting bug.n ======", 0)
 ExitApp
 
 Main_evalCommand(command)
@@ -105,7 +99,6 @@ Main_evalCommand(command)
       functionArguments := SubStr(command, i + 1, j - (i + 1))
       StringReplace, functionArguments, functionArguments, %A_SPACE%, , All
       StringSplit, functionArgument, functionArguments, `,
-      Debug_logMessage("DEBUG[1] Main_evalCommand: " functionName "(" functionArguments ")", 1)
       If (functionArgument0 = 0)
         %functionName%()
       Else If (functionArgument0 = 1)
@@ -182,7 +175,6 @@ Return
 
 #Include Bar.ahk
 #Include Config.ahk
-#Include Debug.ahk
 #Include Manager.ahk
 #Include Monitor.ahk
 #Include Tiler.ahk

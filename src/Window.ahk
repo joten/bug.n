@@ -15,7 +15,6 @@
 
 Window_activate(wndId) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_activate: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinActivate, ahk_id %wndId%
@@ -29,7 +28,6 @@ Window_activate(wndId) {
 
 Window_close(wndId) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_close: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinClose, ahk_id %wndId%
@@ -136,7 +134,6 @@ Window_getPosEx(hWindow, ByRef X = "", ByRef Y = "", ByRef Width = "", ByRef Hei
 
 Window_hide(wndId) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_hide: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinHide, ahk_id %wndId%
@@ -219,7 +216,6 @@ Window_isProg(wndId) {
 
 Window_maximize(wndId) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_maximize: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinMaximize, ahk_id %wndId%
@@ -231,7 +227,6 @@ Window_minimize(wndId) {
   Global
 
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_minimize: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinMinimize, ahk_id %wndId%
@@ -249,7 +244,6 @@ Window_move(wndId, x, y, width, height) {
     Return, 0
 
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_move: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinGet, wndMinMax, MinMax, ahk_id %wndId%
@@ -260,7 +254,6 @@ Window_move(wndId, x, y, width, height) {
   WM_ENTERSIZEMOVE = 0x0231
   WM_EXITSIZEMOVE  = 0x0232
   If ErrorLevel {
-    Debug_logMessage("DEBUG[2] Window_move: Potentially hung window " . wndId, 1)
     Return, 1
   } Else {
     SendMessage, WM_ENTERSIZEMOVE, , , , ahk_id %wndId%
@@ -291,7 +284,6 @@ Window_restore(wndId = 0) {
     WinGet, wndId, ID, A
 
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_restore: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinRestore, ahk_id %wndId%
@@ -301,7 +293,6 @@ Window_restore(wndId = 0) {
 
 Window_set(wndId, type, value) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_set: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinSet, %type%, %value%, ahk_id %wndId%
@@ -311,7 +302,6 @@ Window_set(wndId, type, value) {
 
 Window_show(wndId) {
   If Window_isHung(wndId) {
-    Debug_logMessage("DEBUG[2] Window_show: Potentially hung window " . wndId, 2)
     Return, 1
   } Else {
     WinShow, ahk_id %wndId%

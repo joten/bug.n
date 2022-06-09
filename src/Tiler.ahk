@@ -16,7 +16,6 @@
 Tiler_addSubArea(m, v, i, areaX, areaY, areaW, areaH) {
   Global
 
-  Debug_logMessage("DEBUG[2] Tiler_addSubArea: areaX = " areaX ", areaY = " areaY ", areaW = " areaW ", areaH = " areaH, 2)
   View_#%m%_#%v%_area_#0 += 1
   View_#%m%_#%v%_area_#%i%_x := Round(areaX)
   View_#%m%_#%v%_area_#%i%_y := Round(areaY)
@@ -92,14 +91,12 @@ Tiler_getMFactorD(m, v, d, dFact) {
       mFactD := minD
     Else If (Abs(mFactD) > Abs(d))
       mFactD := d
-    Debug_logMessage("DEBUG[2] View_getMFactorD [on]: callD: " callD ", d: " d ", dFact: " dFact ", mFactD: " mFactD, 2)
   } Else {
     ;; Reset after a timeout or a change of direction.
     If (dFact > 1)
       mFactD := minD
     Else
       mFactD := d
-    Debug_logMessage("DEBUG[2] View_getMFactorD [off]: callD: " callD ", d: " d ", dFact: " dFact ", mFactD: " mFactD, 2)
   }
 
   Return, mFactD
@@ -126,8 +123,6 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
   mSplit := mXSet * mYSet
   hasStackArea := (type = "blank") ? View_#%m%_#%v%_showStackArea : (View_tiledWndId0 > mSplit)
   n := (type = "blank") ? mSplit : View_tiledWndId0
-
-  Debug_logMessage("DEBUG[1] Tiler_layoutTiles: mX = " mXSet ", mY = " mYSet ", mSplit = " mSplit " / " View_tiledWndId0, 1)
 
   View_#%m%_#%v%_layoutSymbol := Tiler_getLayoutSymbol(m, v, n)
 
@@ -164,7 +159,6 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
       subAreaWndCount := mXSet
       If (mWndCount < subAreaWndCount)
         subAreaWndCount := mWndCount
-      Debug_logMessage("DEBUG[2] Tiler_layoutTiles: Master subArea #" A_Index, 2)
       Tiler_stackTiles(m, v, mSplit - mWndCount + 1, subAreaWndCount, +1, axis2, subX1, subY1, subW1, subH1, gapW, type)
       mWndCount -= subAreaWndCount
       subAreaCount -= 1
@@ -174,7 +168,6 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
   ;; Stack
   If hasStackArea {
     If (type = "blank") {
-      Debug_logMessage("DEBUG[2] Tiler_layoutTiles: Stack subArea #" A_Index, 2)
       Tiler_stackTiles(m, v, mSplit + 1, 1, +1, 3, x2, y2, w2, h2, 0, type)
     } Else {
       stackLen := View_tiledWndId0 - mSplit
@@ -320,7 +313,6 @@ Tiler_stackTiles(m, v, i, len, d, axis, x, y, w, h, padding, type = "") {
   }
   ;; Else (axis = 3) and nothing to do
 
-  Debug_logMessage("DEBUG[2] Tiler_stackTiles: start = " i ", length = " len, 2)
   Loop, % len {
     If (type = "blank")
       Tiler_addSubArea(m, v, i, tileX, tileY, tileW, tileH)
@@ -364,7 +356,6 @@ Tiler_traceAreas(m, v, continuously) {
     y3 := y2 + (h2 - Config_largeFontSize) / 2
     Gui, Add, Progress, x%x2% y%y2% w%w2% h%h2% Background%Config_backColor_#1_#3%, 100
     Gui, Add, Text, x%x2% y%y3% w%w2% BackgroundTrans Center, % A_Index
-    Debug_logMessage("DEBUG[2] View_traceAreas: i = " A_Index " / " n ", x = " x2 ", y = " y2 ", w = " w2 ", h = " h2, 2)
   }
 
   Gui, Show, NoActivate x%x1% y%y1% w%w1% h%h1%, %wndTitle%

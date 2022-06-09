@@ -41,12 +41,10 @@ Manager_init()
   mmngr1 := New MonitorManager()
   mmngr2 := ""
   SysGet, Manager_monitorCount, MonitorCount
-  Debug_logMessage("DEBUG[0] Manager_init: Found " . Manager_monitorCount . " monitor" . (Manager_monitorCount != 1 ? "s" . "") . ".", 0)
   Loop, % Manager_monitorCount
   {
     Sleep, % Config_shellMsgDelay
     Monitor_init(A_Index, doRestore)
-    Debug_logMessage("DEBUG[6] MonitorW: " . Monitor_#%A_Index%_width . ", MMW1: " . mmngr1.monitors[A_Index].width . ", MM1dpiX: " . mmngr1.monitors[A_Index].dpiX . ", MM1scaleX: " . mmngr1.monitors[A_Index].scaleX, 6)
   }
   Bar_initCmdGui()
 
@@ -87,7 +85,6 @@ Manager_activateMonitor(i, d = 0) {
     Manager_aMonitor := Manager_loop(i, d, 1, Manager_monitorCount)
     v := Monitor_#%Manager_aMonitor%_aView_#1
     wndId := View_getActiveWindow(Manager_aMonitor, v)
-    Debug_logMessage("DEBUG[1] Manager_activateMonitor: Manager_aMonitor: " Manager_aMonitor ", i: " i ", d: " d ", wndId: " wndId, 1)
     Manager_winActivate(wndId)
   }
 }
@@ -123,7 +120,6 @@ Manager_applyRules(wndId, ByRef isManaged, ByRef m, ByRef tags, ByRef isFloating
         Break
       }
     }
-    Debug_logMessage("DEBUG[1] Manager_applyRules: class: " wndClass ", title: " wndTitle ", wndId: " wndId ", rule #: " i, 1)
   } Else {
     isManaged := False
     If wndTitle
@@ -360,7 +356,6 @@ Manager_manage(preferredMonitor, preferredView, wndId, rule = "") {
 
   body := 0
   If Window_isGhost(wndId) {
-    Debug_logMessage("DEBUG[2] A window has given up the ghost (Ghost wndId: " . wndId . ")", 2)
     body := Window_findHung(wndId)
     If body {
       isManaged := InStr(Manager_managedWndIds, body ";")
@@ -370,8 +365,7 @@ Manager_manage(preferredMonitor, preferredView, wndId, rule = "") {
       isFloating := Window_#%body%_isFloating
       hideTitle := InStr(Bar_hideTitleWndIds, body ";")
       action := ""
-    } Else
-      Debug_logMessage("DEBUG[1] No body could be found for ghost wndId: " . wndId, 1)
+    }
   }
 
   ;; Apply rules if the window is either a normal window or a ghost without a body.
@@ -455,7 +449,6 @@ Manager_moveWindow() {
 Manager_onDisplayChange(a, wParam, uMsg, lParam) {
   Local doChange := (Config_monitorDisplayChangeMessages = "on")
   
-  Debug_logMessage("DEBUG[1] Manager_onDisplayChange( a: " . a . ", uMsg: " . uMsg . ", wParam: " . wParam . ", lParam: " . lParam . " )", 1)
   If !(Config_monitorDisplayChangeMessages = "on" || Config_monitorDisplayChangeMessages = "off" || Config_monitorDisplayChangeMessages = 0) {
     MsgBox, 291, , % "Would you like to reset the monitor configuration?`n'No' will only rearrange all active views.`n'Cancel' will result in no change."
     IfMsgBox Yes
@@ -511,8 +504,6 @@ Manager_onShellMessage(wParam, lParam) {
   SetFormat, Integer, hex
   lParam := lParam + 0
   SetFormat, Integer, d
-
-  Debug_logMessage("DEBUG[2] Manager_onShellMessage( wParam: " . wParam . ", lParam: " . lParam . " )", 2)
 
   wndIsHidden := Window_getHidden(lParam, wndClass, wndTitle)
   If wndIsHidden {
@@ -579,7 +570,6 @@ Manager_onShellMessage(wParam, lParam) {
       WinGet, aWndId, ID, A
       WinGetPos, aWndX, aWndY, aWndWidth, aWndHeight, ahk_id %aWndId%
       m := Monitor_get(aWndX + aWndWidth / 2, aWndY + aWndHeight / 2)
-      Debug_logMessage("DEBUG[1] Manager_onShellMessage: Manager_monitorCount: " Manager_monitorCount ", Manager_aMonitor: " Manager_aMonitor ", m: " m ", aWndId: " aWndId, 1)
       ;; The currently active window defines the active monitor.
       If m
         Manager_aMonitor := m
@@ -594,7 +584,6 @@ Manager_onShellMessage(wParam, lParam) {
         {
           If (Window_#%wndId%_tags & 1 << A_Index - 1)
           {
-            Debug_logMessage("DEBUG[3] Switching views because " . wndId . " is considered hidden and active", 3)
             ;; A newly created window defines the active monitor, if it is visible.
             Manager_aMonitor := Window_#%wndId%_monitor
             Monitor_activateView(A_Index)
@@ -686,7 +675,6 @@ Manager_registerShellHook() {
   WinGetClass, wndClass, ahk_id %hWnd%
   WinGetTitle, wndTitle, ahk_id %hWnd%
   DllCall("RegisterShellHookWindow", "UInt", hWnd)    ;; Minimum operating systems: Windows 2000 (http://msdn.microsoft.com/en-us/library/ms644989(VS.85).aspx)
-  Debug_logMessage("DEBUG[1] Manager_registerShellHook; hWnd: " . hWnd . ", wndClass: " . wndClass . ", wndTitle: " . wndTitle, 1)
   msgNum := DllCall("RegisterWindowMessage", "Str", "SHELLHOOK")
   OnMessage(msgNum, "Manager_onShellMessage")
   If !(Config_monitorDisplayChangeMessages = "off" || Config_monitorDisplayChangeMessages = 0)
@@ -742,7 +730,6 @@ Manager_resetMonitorConfiguration() {
     mmngr2 := New MonitorManager()
     Loop, % Manager_monitorCount {
       Monitor_getWorkArea(A_Index)
-      Debug_logMessage("DEBUG[6] MonitorW: " . Monitor_#%A_Index%_width . ", MMW1: " . mmngr1.monitors[A_Index].width . ", MM1dpiX: " . mmngr1.monitors[A_Index].dpiX . ", MM1scaleX: " . mmngr1.monitors[A_Index].scaleX . ", MMW2: " . mmngr2.monitors[A_Index].width . ", MM2dpiX: " . mmngr2.monitors[A_Index].dpiX . ", MM2scaleX: " . mmngr2.monitors[A_Index].scaleX, 6)
       Bar_init(A_Index)
     }
   }
@@ -760,7 +747,6 @@ Manager_resetMonitorConfiguration() {
   WinGetClass, wndClass, ahk_id %hWnd%
   WinGetTitle, wndTitle, ahk_id %hWnd%
   DllCall("RegisterShellHookWindow", "UInt", hWnd)    ;; Minimum operating systems: Windows 2000 (http://msdn.microsoft.com/en-us/library/ms644989(VS.85).aspx)
-  Debug_logMessage("DEBUG[1] Manager_registerShellHook; hWnd: " . hWnd . ", wndClass: " . wndClass . ", wndTitle: " . wndTitle, 1)
 }
 
 Manager_restoreWindowBorders()
@@ -819,7 +805,6 @@ Manager__restoreWindowState(filename) {
         vidx := vidx + 1
       } Else {
         excluded_view_set := excluded_view_set . view_list%vidx%
-        Debug_logMessage("View (" . m . ", " . v . ") is no longer available (" . vidx . ")", 0)
       }
     } Else If (SubStr(A_LoopReadLine, 1, 7) = "Window ") {
       wnds%widx% := SubStr(A_LoopReadLine, 8)
@@ -827,16 +812,12 @@ Manager__restoreWindowState(filename) {
     }
   }
 
-  ;Debug_logMessage("view_set: " . view_set, 1)
-  ;Debug_logMessage("excluded_view_set: " . excluded_view_set, 1)
-
   candidate_set := ""
 
   ; Scan through all defined windows. Create a candidate set of windows based on whether the properties of existing windows match.
   Loop, % (widx - 1) {
     StringSplit, items, wnds%A_Index%, `;
     If (items0 < 9) {
-      Debug_logMessage("Window '" . wnds%A_Index% . "' could not be processed due to parse error", 0)
       Continue
     }
 
@@ -849,7 +830,6 @@ Manager__restoreWindowState(filename) {
     WinGet, wndPName, ProcessName, ahk_id %i%
     DetectHiddenWindows, %detectHidden%
     If Not ( items%j% = wndPName ) {
-      Debug_logMessage("Window ahk_id " . i . " process '" . wndPName . "' doesn't match expected '" . items%j% . "', forgetting this window", 0)
       Continue
     }
 
@@ -859,10 +839,6 @@ Manager__restoreWindowState(filename) {
     ; If Managed
     If ( items%j% ) {
       If ( InStr(view_set, i) = 0) {
-        If ( InStr(excluded_view_set, i) )
-          Debug_logMessage("Window ahk_id " . i . " is being ignored because it no longer belongs to an active view", 0)
-        Else
-          Debug_logMessage("Window ahk_id " . i . " is being ignored because it doesn't exist in any views", 0)
         Continue
       }
     }
@@ -886,8 +862,6 @@ Manager__restoreWindowState(filename) {
     candidate_set := candidate_set . i . ";"
   }
 
-  ;Debug_logMessage("candidate_set: " . candidate_set, 1)
-
   ; Set up all views. Must filter the window list by those from the candidate set.
   Loop, % (vidx - 1) {
     StringSplit, items, view_list%A_Index%, `;
@@ -905,18 +879,14 @@ Manager_saveState() {
   Critical
   Global Config_filePath, Config_viewCount, Main_autoLayout, Main_autoWindowState, Manager_layoutDirty, Manager_monitorCount, Manager_windowsDirty
 
-  Debug_logMessage("DEBUG[2] Manager_saveState", 2)
-
   ;; @TODO: Check for changes to the layout.
   ;If Manager_layoutDirty {
-    Debug_logMessage("DEBUG[2] Manager_saveState: " Main_autoLayout, 2)
     Config_saveSession(Config_filePath, Main_autoLayout)
     Manager_layoutDirty := 0
   ;}
 
   ;; @TODO: Check for changes to windows.
   ;If Manager_windowsDirty {
-    Debug_logMessage("DEBUG[2] Manager_saveState: " Main_autoWindowState, 2)
     Manager_saveWindowState(Main_autoWindowState, Manager_monitorCount, Config_viewCount)
     Manager_windowsDirty := 0
   ;}
@@ -1222,10 +1192,8 @@ Manager_winActivate(wndId) {
   Global Manager_aMonitor
   
   Manager_setCursor(wndId)
-  Debug_logMessage("DEBUG[1] Activating window: " wndId, 1)
   If Not wndId {
     wndId := WinExist("bug.n_BAR_" . Manager_aMonitor)
-    Debug_logMessage("DEBUG[1] Activating Desktop: " wndId, 1)
   }
 
   If Window_activate(wndId)

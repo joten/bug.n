@@ -38,17 +38,13 @@ View_init(m, v)
 View_activateWindow(i, d = 0) {
   Local aWndId, direction, failure, j, v, wndId, wndId0, wndIds
 
-  Debug_logMessage("DEBUG[1] View_activateWindow(" . i . ", " . d . ")", 1)
   If (i = 0) And (d = 0)
     Return
 
   WinGet, aWndId, ID, A
-  Debug_logMessage("DEBUG[2] Active Windows ID: " . aWndId, 2, False)
   v := Monitor_#%Manager_aMonitor%_aView_#1
-  Debug_logMessage("DEBUG[2] View (" . v . ") wndIds: " . View_#%Manager_aMonitor%_#%v%_wndIds, 2, False)
   StringTrimRight, wndIds, View_#%Manager_aMonitor%_#%v%_wndIds, 1
   StringSplit, wndId, wndIds, `;
-  Debug_logMessage("DEBUG[2] wndId count: " . wndId0, 2, False)
   If (i > 0) And (i <= wndId0) And (d = 0) {
     wndId := wndId%i%
     Window_set(wndId, "AlwaysOnTop", "On")
@@ -64,7 +60,6 @@ View_activateWindow(i, d = 0) {
         Break
       }
     }
-    Debug_logMessage("DEBUG[2] Current wndId index: " . j, 2, False)
 
     If (d > 0)
       direction = 1
@@ -72,7 +67,6 @@ View_activateWindow(i, d = 0) {
       direction = -1
     i := Manager_loop(j, d, 1, wndId0)
     Loop, % wndId0 {
-      Debug_logMessage("DEBUG[2] Next wndId index: " . i, 2, False)
       wndId := wndId%i%
       If Not Window_#%wndId%_isMinimized {
         Window_set(wndId, "AlwaysOnTop", "On")
@@ -117,8 +111,6 @@ View_addWindow(m, v, wndId) {
 
 View_arrange(m, v, setLayout = False) {
   Local fn, h, l, w, x, y
-
-  Debug_logMessage("DEBUG[1] View_arrange(" . m . ", " . v . ")", 1)
 
   l := View_#%m%_#%v%_layout_#1
   fn := Config_layoutFunction_#%l%
@@ -351,7 +343,6 @@ View_setLayoutProperty(name, i, d, opt = 0) {
 View_shuffleWindow(i, d = 0) {
   Local aWndId, j, replace, v
 
-  Debug_logMessage("DEBUG[2] View_shuffleWindow(" . i . ", " . d . ")", 2)
   v := Monitor_#%Manager_aMonitor%_aView_#1
   If Tiler_isActive(Manager_aMonitor, v) {
     View_getTiledWndIds(Manager_aMonitor, v)
@@ -368,7 +359,6 @@ View_shuffleWindow(i, d = 0) {
       Else If (i = 1 And j = 1)
         i := 2
       i := Manager_loop(i, d, 1, View_tiledWndId0)
-      Debug_logMessage("DEBUG[2] View_shuffleWindow: " . j . " -> " . i, 2)
       If (i != j) {
         If (i < j)
           replace := aWndId ";" View_tiledWndId%i% ";"
@@ -390,7 +380,6 @@ View_toggleFloatingWindow(wndId = 0) {
     WinGet, wndId, ID, A
   v := Monitor_#%Manager_aMonitor%_aView_#1
   l := View_#%Manager_aMonitor%_#%v%_layout_#1
-  Debug_logMessage("DEBUG[2] View_toggleFloatingWindow; wndId: " . wndId, 2)
   If (Config_layoutFunction_#%l% And InStr(Manager_managedWndIds, wndId ";")) {
     Window_#%wndId%_isFloating := Not Window_#%wndId%_isFloating
     View_arrange(Manager_aMonitor, v)
@@ -406,7 +395,6 @@ View_toggleMargins()
   If Not (Config_viewMargins = "0;0;0;0")
   {
     v := Monitor_#%Manager_aMonitor%_aView_#1
-    Debug_logMessage("DEBUG[3] View_toggleMargins(" . View_#%Manager_aMonitor%_#%v%_margin1 . ", " . View_#%Manager_aMonitor%_#%v%_margin2 . ", " . View_#%Manager_aMonitor%_#%v%_margin3 . ", " . View_#%Manager_aMonitor%_#%v%_margin4 . ")", 3)
     If (View_#%Manager_aMonitor%_#%v%_margins = "0;0;0;0")
       View_#%Manager_aMonitor%_#%v%_margins := Config_viewMargins
     Else
