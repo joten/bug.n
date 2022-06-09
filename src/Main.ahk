@@ -51,7 +51,6 @@ SetWinDelay, 10
   Menu, Tray, Add,
   Menu, Tray, Add, Exit, Main_quit
 
-  ResourceMonitor_init()
   Manager_init()
   Debug_logMessage("====== Running ======", 0)
 Return          ;; end of the auto-execute section
@@ -63,7 +62,6 @@ Main_cleanup:
   If Not (Config_autoSaveSession = "off") And Not (Config_autoSaveSession = "False")
     Manager_saveState()
   Manager_cleanup()
-  ResourceMonitor_cleanup()
   Debug_logMessage("====== Exiting bug.n ======", 0)
 ExitApp
 
@@ -187,7 +185,6 @@ Return
 #Include Debug.ahk
 #Include Manager.ahk
 #Include Monitor.ahk
-#Include ResourceMonitor.ahk
 #Include Tiler.ahk
 #Include View.ahk
 #Include Window.ahk

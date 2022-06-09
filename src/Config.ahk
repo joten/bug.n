@@ -257,11 +257,7 @@ Return
 
 Config_readinAny() {
   ;; Add information to the variable 'text' in this function to display it in the status bar.
-  Global Config_readinCpu, Config_readinDiskLoad, Config_readinMemoryUsage, Config_readinNetworkLoad
-
   text := ""
-  If (Config_readinCpu Or Config_readinDiskLoad Or Config_readinMemoryUsage Or Config_readinNetworkLoad)
-    text .= ResourceMonitor_getText()
 
   Return, text
 }

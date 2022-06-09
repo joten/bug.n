@@ -400,10 +400,6 @@ Bar_updateStatus() {
   Local anyText, bat1, bat2, bat3, GuiN, m, mute, time, vol
 
   anyText := Config_readinAny()
-  If Config_readinBat {
-    ResourceMonitor_getBatteryStatus(bat1, bat2)
-    bat3 := SubStr("  " bat1, -2)
-  }
   If Config_readinVolume {
     SoundGet, vol, MASTER, VOLUME
     SoundGet, mute, MASTER, MUTE
