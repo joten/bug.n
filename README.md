@@ -1,9 +1,13 @@
-## bug.n &ndash; Tiling Window Management
+## bug.n &ndash; Tiling Window Management for Microsoft Windows
 
 bug.n is a
 [tiling window manager](https://en.wikipedia.org/wiki/Tiling_window_manager)
 add-on for the Explorer shell of Microsoft Windows. It is written in the 
 scripting language [AutoHotkey](https://www.autohotkey.com/download/).
+
+This fork removes some non-essential features &ndash; as defined by the author 
+and described below &ndash; to reduce code complexity and improve the 
+possibility to maintain the code and fix bugs.
 
 ### What it can do
 
@@ -13,14 +17,14 @@ scripting language [AutoHotkey](https://www.autohotkey.com/download/).
   you need to do your work.
 * Dynamically resize and move your windows, applying a specified layout,
   without you having to care about moving them all by mouse
-* Increase the available screen estate by hiding and therewith freeing up the
-  space occupied by the Microsoft Windows Taskbar and the title bar for every
-  single window and replacing all with a single slim status bar (-- but bug.n
-  is not a shell replacement)
-* Show window management information in the status bar: active window title,
+* ~~Increase the available screen estate by hiding and therewith freeing up the~~
+  ~~space occupied by the Microsoft Windows Taskbar and the title bar for every~~
+  ~~single window and replacing all with a single slim status bar (-- but bug.n~~
+  ~~is not a shell replacement)~~
+* Show window management information in the status bar: ~~active window title,~~
   active layout, overview of the views used
-* Show system information in the status bar: time and date, CPU and memory
-  usage, disk and network load, battery and volume level
+* ~~Show system information in the status bar: time and date, CPU and memory~~
+  ~~usage, disk and network load, battery and volume level~~
 * Store your settings, i. e. which windows and layout were set on a specific
   view
 * Support multiple monitors
@@ -29,8 +33,8 @@ scripting language [AutoHotkey](https://www.autohotkey.com/download/).
 
 * You can resize and move windows specified by the active layout and
   initialized by hotkey.
-* You can toggle the visibility of the Windows Taskbar.
-* You can toggle the visibility of the Windows title bar of the active window.
+* ~~You can toggle the visibility of the Windows Taskbar.~~
+* ~~You can toggle the visibility of the Windows title bar of the active window.~~
 * You can change the layout for the tiling window management suitable to your
   needs.
   + **Tile**: Lay out all windows like tiles on a master area, which can be
@@ -48,7 +52,9 @@ scripting language [AutoHotkey](https://www.autohotkey.com/download/).
 
 ### What it can look like
 
-![Screenshot of bug.n with the default configuration.](https://github.com/fuhsjr00/bug.n/wiki/Configuration-examples/default_01.png "Screenshot of bug.n with the default configuration.")
+A screenshot of bug.n with the default configuration from this fork would mostly
+look like any other Microsoft Windows Desktop with organized windows, as the 
+user interface of bug.n will be reduced to a minimum.
 
 ### Installing and running bug.n
 
@@ -59,9 +65,9 @@ scripting language [AutoHotkey](https://www.autohotkey.com/download/).
   bug.n from source as a script)
 
 You may either
-[download the stable version of bug.n](https://github.com/fuhsjr00/bug.n/releases/latest)
+[download the stable version of bug.n](https://github.com/joten/bug.n/releases/latest)
 from the repository, or
-[download the current development version](https://github.com/fuhsjr00/bug.n/archive/master.zip)
+[download the current development version](https://github.com/joten/bug.n/archive/refs/heads/master.zip)
 as the repository itself. Either way, you will have a `zip` file including an
 executable (`bugn.exe`), the source (`src\*`) and documentation (`doc\*`)
 files.
@@ -90,7 +96,4 @@ the [LICENSE file](./LICENSE.md) for the full license text.
 
 ### Development
 
-Currently, there are two branches: 
-
-* `master`, the current stable version (v9), which is no longer actively developed or maintained;
-* `X`, a development version (v10), which is a rewrite of bug.n and in alpha stage, but development is dormant.
+This is experimental software and currently in development.
