@@ -204,7 +204,7 @@ Config_getSystemSettings() {
     COLOR_INACTIVECAPTIONTEXT     := Config_convertSystemColor(DllCall("GetSysColor", "Int", 19))
     COLOR_MENU                    := Config_convertSystemColor(DllCall("GetSysColor", "Int",  4))
     COLOR_MENUTEXT                := Config_convertSystemColor(DllCall("GetSysColor", "Int",  7))
-    ;; <view>;<layout>;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
+    ;; <view>;<layout>;<title>    ;;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
     If Not Config_backColor_#1 {
       Config_backColor_#1 := COLOR_GRADIENTINACTIVECAPTION ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";"
       Config_backColor_#1 .= COLOR_GRADIENTINACTIVECAPTION ";" COLOR_GRADIENTACTIVECAPTION ";" COLOR_GRADIENTACTIVECAPTION

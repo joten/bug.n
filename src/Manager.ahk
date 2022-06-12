@@ -636,7 +636,6 @@ Manager_onShellMessage(wParam, lParam) {
       Loop, % (Manager_monitorCount - 1) {
         i := A_Index + 1
         Bar_updateLayout(i)
-        Bar_updateStatic(i)
         Loop, % Config_viewCount
           Bar_updateView(i, A_Index)
       }

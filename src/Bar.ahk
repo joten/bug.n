@@ -59,24 +59,6 @@ Bar_init(m) {
   titleWidth -= w
   x1 += w
 
-  ;; The x-position and width of the sub-windows right of the window title are set from the right.
-  ;; <view>;<layout>;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
-  color := "4"
-  id    := "shebang"
-  text  := " #! "
-  StringSplit, color, color, `;
-  StringSplit, id, id, `;
-  StringSplit, text, text, `;
-  Loop, % id0 {
-    If (id%A_Index% = "shebang")
-      Gui, -Disabled
-    w := Bar_getTextWidth(text%A_Index%)
-    x2 -= w
-    titleWidth -= w
-    i := color%A_Index%
-    Bar_addElement(m, id%A_Index%, text%A_Index%, x2, y1, w, Config_backColor_#1_#%i%, Config_foreColor_#1_#%i%, Config_fontColor_#1_#%i%)
-  }
-
   ;; Window title (remaining space)
   If Not Config_singleRowBar {
     titleWidth := wndWidth
@@ -272,13 +254,6 @@ Bar_updateLayout(m) {
   aView := Monitor_#%m%_aView_#1
   GuiN := (m - 1) + 1
   GuiControl, %GuiN%: , Bar_#%m%_layout, % View_#%m%_#%aView%_layoutSymbol
-}
-
-Bar_updateStatic(m) {
-  Local GuiN
-
-  GuiN := (m - 1) + 1
-  GuiControl, %GuiN%: , Bar_#%m%_shebang, #!
 }
 
 Bar_updateTitle() {
