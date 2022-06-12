@@ -14,7 +14,7 @@
 */
 
 Bar_init(m) {
-  Local appBarMsg, anyText, color, color0, GuiN, h1, h2, i, id, id0, text, text0, titleWidth, trayWndId, w, wndId, wndTitle, wndWidth, x1, x2, y1, y2
+  Local appBarMsg, anyText, color, color0, GuiN, h1, h2, i, id, id0, text, text0, trayWndId, w, wndId, wndTitle, wndWidth, x1, x2, y1, y2
 
   If (SubStr(Config_barWidth, 0) = "%") {
     StringTrimRight, wndWidth, Config_barWidth, 1
@@ -29,7 +29,6 @@ Bar_init(m) {
   }
 
   Monitor_#%m%_barWidth := wndWidth
-  titleWidth := wndWidth
   h1 := Bar_ctrlHeight
   x1 := 0
   x2 := wndWidth
@@ -50,23 +49,18 @@ Bar_init(m) {
   Loop, % Config_viewCount {
     w := Bar_getTextWidth(" " Config_viewNames_#%A_Index% " ")
     Bar_addElement(m, "view_#" A_Index, " " Config_viewNames_#%A_Index% " ", x1, y1, w, Config_backColor_#1_#1, Config_foreColor_#1_#1, Config_fontColor_#1_#1)
-    titleWidth -= w
     x1 += w
   }
   ;; Layout
   w := Bar_getTextWidth(" ?????? ")
   Bar_addElement(m, "layout", " ?????? ", x1, y1, w, Config_backColor_#1_#2, Config_foreColor_#1_#2, Config_fontColor_#1_#2)
-  titleWidth -= w
   x1 += w
 
-  ;; Window title (remaining space)
   If Not Config_singleRowBar {
-    titleWidth := wndWidth
     x1 := 0
     y1 += h1
     y2 += h1
   }
-  Bar_addElement(m, "title", "", x1, y1, titleWidth, Config_backColor_#1_#3, Config_foreColor_#1_#3, Config_fontColor_#1_#3)
 
   If (Config_horizontalBarPos = "left")
     x1 := 0
@@ -82,7 +76,6 @@ Bar_init(m) {
     x1 += Monitor_#%m%_x
   x1 := Round(x1)
 
-  Bar_#%m%_titleWidth := titleWidth
   Monitor_#%m%_barX := x1
   y1 := Monitor_#%m%_barY
 
@@ -254,40 +247,7 @@ Bar_updateLayout(m) {
   aView := Monitor_#%m%_aView_#1
   GuiN := (m - 1) + 1
   GuiControl, %GuiN%: , Bar_#%m%_layout, % View_#%m%_#%aView%_layoutSymbol
-}
-
-Bar_updateTitle() {
-  Local aWndId, aWndTitle, content, GuiN, i, title
-
-  WinGet, aWndId, ID, A
-  WinGetTitle, aWndTitle, ahk_id %aWndId%
-  If InStr(Bar_hideTitleWndIds, aWndId ";") Or (aWndTitle = "bug.n_BAR_0")
-    aWndTitle := ""
-  If aWndId And InStr(Manager_managedWndIds, aWndId . ";") And Window_#%aWndId%_isFloating
-    aWndTitle := "~ " aWndTitle
-  If (Manager_monitorCount > 1)
-    aWndTitle := "[" Manager_aMonitor "] " aWndTitle
-  title := " " . aWndTitle . " "
-
-  If (Bar_getTextWidth(title) > Bar_#%Manager_aMonitor%_titleWidth) {
-    ;; Shorten the window title if its length exceeds the width of the bar
-    i := Bar_getTextWidth(Bar_#%Manager_aMonitor%_titleWidth, True) - 6
-    StringLeft, title, aWndTitle, i
-    title := " " . title . " ... "
-  }
-  StringReplace, title, title, &, &&, All     ;; Special character '&', which would underline the next letter.
-
-  Loop, % Manager_monitorCount {
-    GuiN := (A_Index - 1) + 1
-    Gui, %GuiN%: Default
-    GuiControlGet, content, , Bar_#%A_Index%_title
-    If (A_Index = Manager_aMonitor) {
-      If Not (content = title)
-        GuiControl, , Bar_#%A_Index%_title, % title
-    } Else If Not (content = "")
-      GuiControl, , Bar_#%A_Index%_title,
-  }
-  Bar_aWndId := aWndId
+  ;; TODO: Change layout symbol, if window is floating.
 }
 
 Bar_updateView(m, v) {

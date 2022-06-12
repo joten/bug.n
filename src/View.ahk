@@ -383,8 +383,8 @@ View_toggleFloatingWindow(wndId = 0) {
   If (Config_layoutFunction_#%l% And InStr(Manager_managedWndIds, wndId ";")) {
     Window_#%wndId%_isFloating := Not Window_#%wndId%_isFloating
     View_arrange(Manager_aMonitor, v)
-    Bar_updateTitle()
   }
+  ;; TODO: Change layout symbol, if window is floating.
 }
 
 View_toggleMargins()

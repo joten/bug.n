@@ -53,7 +53,6 @@ Manager_init()
   Manager_managedWndIds := ""
   Manager_initial_sync(doRestore)
 
-  Bar_updateTitle()
   Loop, % Manager_monitorCount
   {
     View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
@@ -84,6 +83,7 @@ Manager_activateMonitor(i, d = 0) {
     wndId := View_getActiveWindow(Manager_aMonitor, v)
     Manager_winActivate(wndId)
   }
+  ;; TODO: Indicate active monitor in bar.
 }
 
 Manager_applyRules(wndId, ByRef isManaged, ByRef m, ByRef tags, ByRef isFloating, ByRef isDecorated, ByRef hideTitle, ByRef action) {
@@ -456,7 +456,6 @@ Manager_onDisplayChange(a, wParam, uMsg, lParam) {
         View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
         Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
       }
-      Bar_updateTitle()
     }
   }
   If (doChange) {
@@ -525,7 +524,6 @@ Manager_onShellMessage(wParam, lParam) {
     ;; The current position of the mouse cursor defines the active monitor, if the desktop has been activated.
     If m
       Manager_aMonitor := m
-    Bar_updateTitle()
   }
 
   ;; This was previously inactive due to `HSHELL_WINDOWREPLACED` not being defined in this function.
@@ -640,7 +638,6 @@ Manager_onShellMessage(wParam, lParam) {
           Bar_updateView(i, A_Index)
       }
     }
-    Bar_updateTitle()
   }
 }
 
@@ -733,7 +730,6 @@ Manager_resetMonitorConfiguration() {
     Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
   }
   Manager__restoreWindowState(Main_autoWindowState)
-  Bar_updateTitle()
 
   Gui, +LastFound
   hWnd := WinExist()
@@ -1192,7 +1188,6 @@ Manager_winActivate(wndId) {
   If Window_activate(wndId)
     Return, 1
   Else {
-    Bar_updateTitle()
     Return 0
   }
 }
