@@ -32,18 +32,7 @@ Config_init() {
     Config_fontColor_#%A_Index% :=
   }
   Config_barTransparency   := "off"
-  Config_readinBat         := False
-  Config_readinCpu         := False
-  Config_readinDate        := True
-  Config_readinDateFormat  := "ddd, dd. MMM. yyyy"
-  Config_readinDiskLoad    := False
-  Config_readinMemoryUsage := False
-  Config_readinNetworkLoad := False
-  Config_readinTime        := True
-  Config_readinTimeFormat  := "HH:mm"
-  Config_readinVolume      := False
-  Config_readinInterval    := 30000
-
+  
   ;; Windows ui elements
   Config_bbCompatibility := False
   Config_borderWidth     := 0
@@ -253,13 +242,6 @@ Config_getSystemSettings() {
 Config_hotkeyLabel:
   Config_redirectHotkey(A_ThisHotkey)
 Return
-
-Config_readinAny() {
-  ;; Add information to the variable 'text' in this function to display it in the status bar.
-  text := ""
-
-  Return, text
-}
 
 Config_redirectHotkey(key)
 {

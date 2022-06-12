@@ -53,7 +53,6 @@ Manager_init()
   Manager_managedWndIds := ""
   Manager_initial_sync(doRestore)
 
-  Bar_updateStatus()
   Bar_updateTitle()
   Loop, % Manager_monitorCount
   {
@@ -63,7 +62,6 @@ Manager_init()
 
   Manager_registerShellHook()
   SetTimer, Manager_doMaintenance, %Config_maintenanceInterval%
-  SetTimer, Bar_loop, %Config_readinInterval%
 }
 
 Manager_activateMonitor(i, d = 0) {
@@ -458,7 +456,6 @@ Manager_onDisplayChange(a, wParam, uMsg, lParam) {
         View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
         Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
       }
-      Bar_updateStatus()
       Bar_updateTitle()
     }
   }
@@ -643,7 +640,6 @@ Manager_onShellMessage(wParam, lParam) {
         Loop, % Config_viewCount
           Bar_updateView(i, A_Index)
       }
-      Bar_updateStatus()
     }
     Bar_updateTitle()
   }
@@ -738,7 +734,6 @@ Manager_resetMonitorConfiguration() {
     Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
   }
   Manager__restoreWindowState(Main_autoWindowState)
-  Bar_updateStatus()
   Bar_updateTitle()
 
   Gui, +LastFound

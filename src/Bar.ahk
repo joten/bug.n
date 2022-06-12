@@ -64,32 +64,6 @@ Bar_init(m) {
   color := "4"
   id    := "shebang"
   text  := " #! "
-  If Config_readinTime {
-    color .= ";5"
-    id    .= ";time"
-    text  .= "; " . Config_readinTimeFormat . " "
-  }
-  If Config_readinDate {
-    color .= ";6"
-    id    .= ";date"
-    text  .= "; " . Config_readinDateFormat . " "
-  }
-  If Config_readinVolume {
-    color .= ";9"
-    id    .= ";volume"
-    text  .= "; VOL: ???% "
-  }
-  anyText := Config_readinAny()
-  If anyText {
-    color .= ";7"
-    id    .= ";anyText"
-    text  .= ";" anyText
-  }
-  If Config_readinBat {
-    color .= ";8"
-    id    .= ";batteryStatus"
-    text  .= "; BAT: ???% "
-  }
   StringSplit, color, color, `;
   StringSplit, id, id, `;
   StringSplit, text, text, `;
@@ -268,10 +242,6 @@ Bar_GuiContextMenu:
   }
 Return
 
-Bar_loop:
-  Bar_updateStatus()
-Return
-
 Bar_move(m)
 {
   Local wndTitle, x, y
@@ -309,61 +279,6 @@ Bar_updateStatic(m) {
 
   GuiN := (m - 1) + 1
   GuiControl, %GuiN%: , Bar_#%m%_shebang, #!
-}
-
-Bar_updateStatus() {
-  Local anyText, bat1, bat2, bat3, GuiN, m, mute, time, vol
-
-  anyText := Config_readinAny()
-  If Config_readinVolume {
-    SoundGet, vol, MASTER, VOLUME
-    SoundGet, mute, MASTER, MUTE
-    vol := Round(vol)
-  }
-
-  Loop, % Manager_monitorCount {
-    m := A_Index
-    GuiN := (m - 1) + 1
-    Gui, %GuiN%: Default
-    If Config_readinBat {
-      If (bat1 < 10) And (bat2 = "off") {
-        ;; Change the color, if the battery level is below 10%
-        GuiControl, +Background%Config_backColor_#3_#8% +c%Config_foreColor_#3_#8%, Bar_#%m%_batteryStatus_highlighted
-        GuiControl, +c%Config_fontColor_#3_#8%, Bar_#%m%_batteryStatus
-      } Else If (bat2 = "off") {
-        ;; Change the color, if the pc is not plugged in
-        GuiControl, +Background%Config_backColor_#2_#8% +c%Config_foreColor_#2_#8%, Bar_#%m%_batteryStatus_highlighted
-        GuiControl, +c%Config_fontColor_#2_#8%, Bar_#%m%_batteryStatus
-      } Else {
-        GuiControl, +Background%Config_backColor_#1_#8% +c%Config_foreColor_#1_#8%, Bar_#%m%_batteryStatus_highlighted
-        GuiControl, +c%Config_fontColor_#1_#8%, Bar_#%m%_batteryStatus
-      }
-      GuiControl, , Bar_#%m%_batteryStatus_highlighted, %bat3%
-      GuiControl, , Bar_#%m%_batteryStatus, % " BAT: " bat3 "% "
-    }
-    If anyText
-      GuiControl, , Bar_#%m%_anyText, % anyText
-    If Config_readinVolume {
-      If (mute = "On") {
-        ;; Change the color, if the mute is on
-        GuiControl, +Background%Config_backColor_#1_#9% +c%Config_foreColor_#1_#9%, Bar_#%m%_volume_highlighted
-        GuiControl, +c%Config_fontColor_#1_#9%, Bar_#%m%_volume
-      } Else {
-        GuiControl, +Background%Config_backColor_#2_#9% +c%Config_foreColor_#2_#9%, Bar_#%m%_volume_highlighted
-        GuiControl, +c%Config_fontColor_#2_#9%, Bar_#%m%_volume
-      }
-      GuiControl, , Bar_#%m%_volume_highlighted, %vol%
-      GuiControl, , Bar_#%m%_volume, % " VOL: " SubStr("  " vol, -2) "% "
-    }
-    If Config_readinDate {
-      FormatTime, time, , % Config_readinDateFormat
-      GuiControl, , Bar_#%m%_date, % time
-    }
-    If Config_readinTime {
-      FormatTime, time, , % Config_readinTimeFormat
-      GuiControl, , Bar_#%m%_time, % time
-    }
-  }
 }
 
 Bar_updateTitle() {
