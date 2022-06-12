@@ -162,31 +162,6 @@ Bar_init(m) {
   }
 }
 
-Bar_initCmdGui()
-{
-  Global Bar_#0_#0, Bar_#0_#0H, Bar_#0_#0W, Bar_#0_#1, Bar_cmdGuiIsVisible, Config_barCommands, Config_fontName, Config_fontSize
-  Global Config_backColor_#1_#3, Config_fontColor_#1_#3, Config_foreColor_#1_#3
-
-  Bar_#0_#0 := ""
-  Bar_cmdGuiIsVisible := False
-  wndTitle := "bug.n_BAR_0"
-  Gui, 99: Default
-  Gui, +LabelBar_cmdGui
-  IfWinExist, %wndTitle%
-    Gui, Destroy
-  Gui, +LastFound -Caption +ToolWindow +AlwaysOnTop +Delimiter`;
-  Gui, Color, Default
-  Gui, Font, s%Config_fontSize%, %Config_fontName%
-  StringSplit, cmd, Config_barCommands, `;
-  Gui, Add, ComboBox, x10 y10 r%cmd0% w300 Background%Config_backColor_#1_#3% c%Config_fontColor_#1_#3% Simple vBar_#0_#0 gBar_cmdGuiEnter, % Config_barCommands
-  Gui, Add, Edit, Y0 w300 Hidden vBar_#0_#1 gBar_cmdGuiEnter
-  Gui, Add, Button, Y0 Hidden Default gBar_cmdGuiEnter, OK
-  GuiControlGet, Bar_#0_#0, Pos
-  Bar_#0_#0H += 20
-  Bar_#0_#0W += 20
-  Gui, Show, Hide w%Bar_#0_#0W% h%Bar_#0_#0H%, %wndTitle%
-}
-
 Bar_addElement(m, id, text, x, y1, width, backColor, foreColor, fontColor) {
   Local y2
 
@@ -197,27 +172,6 @@ Bar_addElement(m, id, text, x, y1, width, backColor, foreColor, fontColor) {
   Gui, Font, c%fontColor%
   Gui, Add, Text, x%x% y%y2% w%width% h%Bar_textHeight% BackgroundTrans Center vBar_#%m%_%id%, %text%
 }
-
-Bar_cmdGuiEnter:
-  If (A_GuiControl = "OK") Or (A_GuiControl = "Bar_#0_#0" And A_GuiControlEvent = "DoubleClick") {
-    Gui, Submit, NoHide
-    Bar_cmdGuiIsVisible := False
-    Gui, Cancel
-    WinActivate, ahk_id %Bar_aWndId%
-    Main_evalCommand(Bar_#0_#0)
-    Bar_#0_#0 := ""
-  } Else If (A_GuiControl = "Bar_#0_#1") {
-    Gui, Submit, NoHide
-    Loop, Parse, Bar_#0_#1, `n, `r
-      Main_evalCommand(A_LoopField)
-  }
-Return
-
-Bar_cmdGuiEscape:
-  Bar_cmdGuiIsVisible := False
-  Gui, Cancel
-  WinActivate, ahk_id %Bar_aWndId%
-Return
 
 Bar_getHeight()
 {
@@ -290,19 +244,12 @@ Bar_getTextWidth(x, reverse=False)
 Bar_GuiClick:
   Manager_winActivate(Bar_aWndId)
   If (A_GuiEvent = "Normal") {
-    If (SubStr(A_GuiControl, -13) = "_shebang_event") {
-      If Not Bar_cmdGuiIsVisible
-        If Not (SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6) = Manager_aMonitor)
-          Manager_activateMonitor(SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6))
-      Bar_toggleCommandGui()
-    } Else {
-      If Not (SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6) = Manager_aMonitor)
-        Manager_activateMonitor(SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6))
-      If (SubStr(A_GuiControl, -12) = "_layout_event")
-        View_setLayout(-1)
-      Else If InStr(A_GuiControl, "_view_#") And (SubStr(A_GuiControl, -5) = "_event")
-        Monitor_activateView(SubStr(A_GuiControl, InStr(A_GuiControl, "_view_#", False, 0) + 7, 1))
-    }
+    If Not (SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6) = Manager_aMonitor)
+      Manager_activateMonitor(SubStr(A_GuiControl, 6, InStr(A_GuiControl, "_", False, 6) - 6))
+    If (SubStr(A_GuiControl, -12) = "_layout_event")
+      View_setLayout(-1)
+    Else If InStr(A_GuiControl, "_view_#") And (SubStr(A_GuiControl, -5) = "_event")
+      Monitor_activateView(SubStr(A_GuiControl, InStr(A_GuiControl, "_view_#", False, 0) + 7, 1))
   }
 Return
 
@@ -336,35 +283,6 @@ Bar_move(m)
   WinMove, %wndTitle%, , %x%, %y%
 }
 
-Bar_toggleCommandGui() {
-  Local wndId, x, y
-
-  Gui, 99: Default
-  If Bar_cmdGuiIsVisible {
-    Bar_cmdGuiIsVisible := False
-    Gui, Cancel
-    Manager_winActivate(Bar_aWndId)
-  } Else {
-    Bar_cmdGuiIsVisible := True
-    
-    If (Config_verticalBarPos = "tray")
-      x := Monitor_#%Manager_aMonitor%_x + Monitor_#%Manager_aMonitor%_barX + Monitor_#%Manager_aMonitor%_barWidth - Bar_#0_#0W
-    Else
-      x := Monitor_#%Manager_aMonitor%_barX + Monitor_#%Manager_aMonitor%_barWidth - Bar_#0_#0W   ;; x := mX + (mBarX - mX) + mBarW - w
-    
-    If (Config_verticalBarPos = "top") Or (Config_verticalBarPos = "tray") And (Monitor_#%Manager_aMonitor%_taskBarPos = "top" Or Not Monitor_#%Manager_aMonitor%_taskBarClass)
-      y := Monitor_#%Manager_aMonitor%_y
-    Else
-      y := Monitor_#%Manager_aMonitor%_y + Monitor_#%Manager_aMonitor%_height - Bar_#0_#0H
-    
-    Gui, Show
-    WinGet, wndId, ID, bug.n_BAR_0
-    WinMove, ahk_id %wndId%, , %x%, %y%
-    Window_set(wndId, "AlwaysOnTop", "On")
-    GuiControl, Focus, % Bar_#0_#0
-  }
-}
-
 Bar_toggleVisibility(m)
 {
   Local GuiN
@@ -372,8 +290,7 @@ Bar_toggleVisibility(m)
   GuiN := (m - 1) + 1
   If Monitor_#%m%_showBar
   {
-    If Not (GuiN = 99) Or Bar_cmdGuiIsVisible
-      Gui, %GuiN%: Show
+    Gui, %GuiN%: Show
   }
   Else
     Gui, %GuiN%: Cancel

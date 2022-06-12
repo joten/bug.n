@@ -32,7 +32,6 @@ Config_init() {
     Config_fontColor_#%A_Index% :=
   }
   Config_barTransparency   := "off"
-  Config_barCommands       := "Run, explore " Main_docDir ";Monitor_toggleBar();Reload;ExitApp"
   Config_readinBat         := False
   Config_readinCpu         := False
   Config_readinDate        := True
@@ -500,7 +499,6 @@ Config_UI_saveSession() {
 ;; GUI management
 #+Space::Monitor_toggleBar()
 #Space::Monitor_toggleTaskBar()
-#y::Bar_toggleCommandGui()
 #+y::Monitor_toggleNotifyIconOverflowWindow()
 !+y::View_traceAreas()
 

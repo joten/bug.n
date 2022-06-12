@@ -46,7 +46,6 @@ Manager_init()
     Sleep, % Config_shellMsgDelay
     Monitor_init(A_Index, doRestore)
   }
-  Bar_initCmdGui()
 
   Manager_hideShow      := False
   Bar_hideTitleWndIds   := ""
