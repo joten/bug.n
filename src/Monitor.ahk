@@ -19,7 +19,6 @@ Monitor_init(m, doRestore) {
   Monitor_#%m%_aView_#1 := 1
   Monitor_#%m%_aView_#2 := 1
   Monitor_#%m%_showBar  := Config_showBar
-  Monitor_#%m%_showTaskBar  := Config_showTaskBar
   Monitor_#%m%_taskBarClass := ""
   Monitor_#%m%_taskBarPos   := ""
   Loop, % Config_viewCount
@@ -30,10 +29,6 @@ Monitor_init(m, doRestore) {
     Config_restoreLayout(Config_filePath, m)
   SysGet, Monitor_#%m%_name, MonitorName, %m%
   Monitor_getWorkArea(m)
-  If Not Monitor_#%m%_showTaskBar {
-    Monitor_#%m%_showTaskBar := True
-    Monitor_toggleTaskBar(m)
-  }
   Bar_init(m)
 }
 
@@ -146,8 +141,6 @@ Monitor_getWorkArea(m) {
   
   wndClasses := "Shell_TrayWnd;Shell_SecondaryTrayWnd"
   ;; @TODO What about third and so forth TrayWnd?
-  If Config_bbCompatibility
-    wndClasses .= ";bbLeanBar;bbSlit;BBToolbar;SystemBarEx"
   Loop, PARSE, wndClasses, `;
   {
     wndId := WinExist("ahk_class " A_LoopField)
@@ -215,7 +208,6 @@ Monitor_moveToIndex(m, n) {
   Monitor_#%n%_aView_#2 := Monitor_#%m%_aView_#2
   Monitor_#%n%_name     := Monitor_#%m%_name
   Monitor_#%n%_showBar  := Monitor_#%m%_showBar
-  Monitor_#%n%_showTaskBar  := Monitor_#%m%_showTaskBar
   Monitor_#%n%_taskBarClass := Monitor_#%m%_taskBarClass
   Monitor_#%n%_taskBarPos   := Monitor_#%m%_taskBarPos
   Monitor_#%n%_height := Monitor_#%m%_height
@@ -300,43 +292,6 @@ Monitor_toggleBar()
   Monitor_getWorkArea(Manager_aMonitor)
   View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
   Manager_winActivate(Bar_aWndId)
-}
-
-Monitor_toggleNotifyIconOverflowWindow() {
-  Static wndId
-
-  If Not WinExist("ahk_class NotifyIconOverflowWindow") {
-    WinGet, wndId, ID, A
-    detectHidden := A_DetectHiddenWindows
-    DetectHiddenWindows, On
-    WinShow, ahk_class NotifyIconOverflowWindow
-    WinActivate, ahk_class NotifyIconOverflowWindow
-    DetectHiddenWindows, %detectHidden%
-  } Else {
-    WinHide, ahk_class NotifyIconOverflowWindow
-    WinActivate, ahk_id %wndId%
-  }
-}
-
-Monitor_toggleTaskBar(m := 0) {
-  Global
-
-  m := m ? m : Manager_aMonitor
-  If Monitor_#%m%_taskBarClass {
-    Monitor_#%m%_showTaskBar := Not Monitor_#%m%_showTaskBar
-    Manager_hideShow := True
-    If Not Monitor_#%m%_showTaskBar {
-      WinHide, Start ahk_class Button
-      WinHide, % "ahk_class " Monitor_#%m%_taskBarClass
-    } Else {
-      WinShow, Start ahk_class Button
-      WinShow, % "ahk_class " Monitor_#%m%_taskBarClass
-    }
-    Manager_hideShow := False
-    Monitor_getWorkArea(m)
-    Bar_move(m)
-    View_arrange(m, Monitor_#%m%_aView_#1)
-  }
 }
 
 Monitor_toggleWindowTag(i, d = 0) {

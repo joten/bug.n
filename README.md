@@ -60,9 +60,10 @@ user interface of bug.n will be reduced to a minimum.
 
 ##### Requirements
 
-* Microsoft Windows 2000 or higher
-* [AutoHotkey](https://www.autohotkey.com/download/) 1.1.11 or higher (if running
-  bug.n from source as a script)
+* Technically: Microsoft Windows 2000 or higher; 
+  for security reasons: Microsoft Windows 10 or higher!
+* [AutoHotkey](https://www.autohotkey.com/download/) 1.1.11 or higher 
+  (if running bug.n from source as a script)
 
 You may either
 [download the stable version of bug.n](https://github.com/joten/bug.n/releases/latest)

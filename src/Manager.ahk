@@ -17,7 +17,6 @@ Manager_init()
 {
   Local doRestore
 
-  Manager_setWindowBorders()
   Bar_getHeight()
   ; axes, dimensions, percentage, flipped, gapWidth
   Manager_layoutDirty := 0
@@ -130,16 +129,12 @@ Manager_cleanup()
 
   WinGet, aWndId, ID, A
 
-  Manager_restoreWindowBorders()
-
   ;; Show borders and title bars.
   StringTrimRight, wndIds, Manager_managedWndIds, 1
   Manager_hideShow := True
   Loop, PARSE, wndIds, `;
   {
     Window_show(A_LoopField)
-    If Not Config_showBorder
-      Window_set(A_LoopField, "Style", "+0x40000")
     Window_set(A_LoopField, "Style", "+0xC00000")
   }
 
@@ -153,7 +148,6 @@ Manager_cleanup()
   {
     m := A_Index
     Monitor_#%m%_showBar := False
-    Monitor_#%m%_showTaskBar := True
     Monitor_getWorkArea(m)
     Loop, % Config_viewCount
     {
@@ -318,8 +312,6 @@ Manager__setWinProperties(wndId, isManaged, m, tags, isDecorated, isFloating, hi
     Window_#%wndId%_isMinimized := False
     Window_#%wndId%_area        := 0
 
-    If Not Config_showBorder
-      Window_set(wndId, "Style", "-0x40000")
     If Not Window_#%wndId%_isDecorated
       Window_set(wndId, "Style", "-0xC00000")
 
@@ -738,25 +730,6 @@ Manager_resetMonitorConfiguration() {
   DllCall("RegisterShellHookWindow", "UInt", hWnd)    ;; Minimum operating systems: Windows 2000 (http://msdn.microsoft.com/en-us/library/ms644989(VS.85).aspx)
 }
 
-Manager_restoreWindowBorders()
-{
-  Local ncm, ncmSize
-
-  If Config_selBorderColor
-    DllCall("SetSysColors", "Int", 1, "Int*", 10, "UInt*", Manager_normBorderColor)
-  If (Config_borderWidth > 0) Or (Config_borderPadding >= 0 And A_OSVersion = "WIN_VISTA")
-  {
-    ncmSize := VarSetCapacity(ncm, 4 * (A_OSVersion = "WIN_VISTA" ? 11 : 10) + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), 0)
-    NumPut(ncmSize, ncm, 0, "UInt")
-    DllCall("SystemParametersInfo", "UInt", 0x0029, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
-    If (Config_borderWidth > 0)
-      NumPut(Manager_borderWidth, ncm, 4, "Int")
-    If (Config_borderPadding >= 0 And A_OSVersion = "WIN_VISTA")
-      NumPut(Manager_borderPadding, ncm, 40 + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), "Int")
-    DllCall("SystemParametersInfo", "UInt", 0x002a, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
-  }
-}
-
 ;; Restore previously saved window state.
 ;; If the state is completely different, this function won't do much. However, if restoring from a crash
 ;; or simply restarting bug.n, it should completely recover the window state.
@@ -981,32 +954,6 @@ Manager_setViewMonitor(i, d = 0) {
     WinGet, aWndId, ID, A
     Manager_winActivate(aWndId)
     Bar_updateView(i, v)
-  }
-}
-
-Manager_setWindowBorders()
-{
-  Local ncm, ncmSize
-
-  If Config_selBorderColor
-  {
-    SetFormat, Integer, hex
-    Manager_normBorderColor := DllCall("GetSysColor", "Int", 10)
-    SetFormat, Integer, d
-    DllCall("SetSysColors", "Int", 1, "Int*", 10, "UInt*", Config_selBorderColor)
-  }
-  If (Config_borderWidth > 0) Or (Config_borderPadding >= 0 And A_OSVersion = "WIN_VISTA")
-  {
-    ncmSize := VarSetCapacity(ncm, 4 * (A_OSVersion = "WIN_VISTA" ? 11 : 10) + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), 0)
-    NumPut(ncmSize, ncm, 0, "UInt")
-    DllCall("SystemParametersInfo", "UInt", 0x0029, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
-    Manager_borderWidth := NumGet(ncm, 4, "Int")
-    Manager_borderPadding := NumGet(ncm, 40 + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), "Int")
-    If (Config_borderWidth > 0)
-      NumPut(Config_borderWidth, ncm, 4, "Int")
-    If (Config_borderPadding >= 0 And A_OSVersion = "WIN_VISTA")
-      NumPut(Config_borderPadding, ncm, 40 + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), "Int")
-    DllCall("SystemParametersInfo", "UInt", 0x002a, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
   }
 }
 

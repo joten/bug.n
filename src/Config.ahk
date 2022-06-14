@@ -26,30 +26,19 @@ Config_init() {
   Config_fontName          := "Lucida Console"
   Config_fontSize          := 10
   Config_largeFontSize     := 24
+  Config_scalingFactor     := 96 / A_ScreenDPI            ;; Undocumented. It should not be set manually by the user,
+                                                          ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
   Config_barTransparency   := "off"
-  ;; 1: <view>;<layout>   ;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
-  ;; 2: <active view>;    ;;;;;;<discharging battery>;<muted volume>
-  ;; 3: ;                 ;;;;;;<low battery>;
-  Config_backColor_#1 := "000000;000000;0;0;0;0;0;0;0"
+  Config_backColor_#1 := "000000;000000;0;0;0;0;0;0;0"    ;; 1: <view>;<layout>   ;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
   Config_foreColor_#1 := "000000;000000;0;0;0;0;0;0;0"
   Config_fontColor_#1 := "ffffff;ffffff;0;0;0;0;0;0;0"
-  Config_backColor_#2 := "000000;;;;;;;0;0"
+  Config_backColor_#2 := "000000;;;;;;;0;0"               ;; 2: <active view>;    ;;;;;;<discharging battery>;<muted volume>
   Config_foreColor_#2 := "000000;;;;;;;0;0"
   Config_fontColor_#2 := "ffc000;;;;;;;0;0"
-  Config_backColor_#3 := ";;;;;;;0;"
+  Config_backColor_#3 := ";;;;;;;0;"                      ;; 3: ;                 ;;;;;;<low battery>;
   Config_foreColor_#3 := ";;;;;;;0;"
   Config_fontColor_#3 := ";;;;;;;0;"
   
-  ;; Windows ui elements
-  Config_bbCompatibility := False
-  Config_borderWidth     := 0
-  Config_borderPadding   := -1
-  Config_showTaskBar     := False
-  Config_showBorder      := True
-  Config_selBorderColor  := ""
-  Config_scalingFactor   := 96 / A_ScreenDPI    ;; Undocumented. It should not be set manually by the user,
-                                                ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
-
   ;; Window arrangement
   Config_viewNames          := "1;2;3;4;5;6;7;8;9"
   Config_layout_#1          := "[]=;tile"
@@ -102,12 +91,6 @@ Config_init() {
 
   Config_hotkeyCount := 0
   Config_restoreConfig(Config_filePath)
-  If (SubStr(A_OSVersion, 1, 3) = "10.") {
-    Config_borderWidth    := 0
-    Config_borderPadding  := -1
-    Config_showBorder     := True
-    Config_selBorderColor := ""
-  }
   
   Loop, 3 {
     StringSplit, Config_backColor_#%A_Index%_#, Config_backColor_#%A_Index%, `;
@@ -377,8 +360,6 @@ Config_UI_saveSession() {
 
 ;; GUI management
 #+Space::Monitor_toggleBar()
-#Space::Monitor_toggleTaskBar()
-#+y::Monitor_toggleNotifyIconOverflowWindow()
 !+y::View_traceAreas()
 
 ;; Administration
