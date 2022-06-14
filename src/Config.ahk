@@ -24,14 +24,21 @@ Config_init() {
   Config_singleRowBar      := True
   Config_spaciousBar       := False
   Config_fontName          := "Lucida Console"
-  Config_fontSize          :=
+  Config_fontSize          := 10
   Config_largeFontSize     := 24
-  Loop, 3 {
-    Config_backColor_#%A_Index% :=
-    Config_foreColor_#%A_Index% :=
-    Config_fontColor_#%A_Index% :=
-  }
   Config_barTransparency   := "off"
+  ;; 1: <view>;<layout>   ;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
+  ;; 2: <active view>;    ;;;;;;<discharging battery>;<muted volume>
+  ;; 3: ;                 ;;;;;;<low battery>;
+  Config_backColor_#1 := "000000;000000;0;0;0;0;0;0;0"
+  Config_foreColor_#1 := "000000;000000;0;0;0;0;0;0;0"
+  Config_fontColor_#1 := "ffffff;ffffff;0;0;0;0;0;0;0"
+  Config_backColor_#2 := "000000;;;;;;;0;0"
+  Config_foreColor_#2 := "000000;;;;;;;0;0"
+  Config_fontColor_#2 := "ffc000;;;;;;;0;0"
+  Config_backColor_#3 := ";;;;;;;0;"
+  Config_foreColor_#3 := ";;;;;;;0;"
+  Config_fontColor_#3 := ";;;;;;;0;"
   
   ;; Windows ui elements
   Config_bbCompatibility := False
@@ -40,9 +47,8 @@ Config_init() {
   Config_showTaskBar     := False
   Config_showBorder      := True
   Config_selBorderColor  := ""
-  Config_scalingFactor   := 1   ;; Undocumented. The value is retrieved by `Config_getSystemSettings()` from the registry.
-                                ;; It should not be set manually by the user,
-                                ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
+  Config_scalingFactor   := 96 / A_ScreenDPI    ;; Undocumented. It should not be set manually by the user,
+                                                ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
 
   ;; Window arrangement
   Config_viewNames          := "1;2;3;4;5;6;7;8;9"
@@ -103,8 +109,11 @@ Config_init() {
     Config_selBorderColor := ""
   }
   
-  Config_getSystemSettings()
-  Config_initColors()
+  Loop, 3 {
+    StringSplit, Config_backColor_#%A_Index%_#, Config_backColor_#%A_Index%, `;
+    StringSplit, Config_foreColor_#%A_Index%_#, Config_foreColor_#%A_Index%, `;
+    StringSplit, Config_fontColor_#%A_Index%_#, Config_fontColor_#%A_Index%, `;
+  }
   Loop, % Config_layoutCount {
     StringSplit, layout, Config_layout_#%A_Index%, `;
     Config_layoutFunction_#%A_Index% := layout2
@@ -119,124 +128,12 @@ Config_init() {
     Config_viewNames_#%A_Index% := vNames%A_Index%
 }
 
-Config_initColors() {
-  Global
-
-  Loop, 3 {
-    StringReplace, Config_backColor_#%A_Index%, Config_backColor_#%A_Index%, `;0`;, `;000000`;, All
-    Config_backColor_#%A_Index% := RegExReplace(Config_backColor_#%A_Index%, "^0;", "000000;")
-    Config_backColor_#%A_Index% := RegExReplace(Config_backColor_#%A_Index%, ";0$", ";000000")
-    StringSplit, Config_backColor_#%A_Index%_#, Config_backColor_#%A_Index%, `;
-
-    StringReplace, Config_foreColor_#%A_Index%, Config_foreColor_#%A_Index%, `;0`;, `;000000`;, All
-    Config_foreColor_#%A_Index% := RegExReplace(Config_foreColor_#%A_Index%, "^0;", "000000;")
-    Config_foreColor_#%A_Index% := RegExReplace(Config_foreColor_#%A_Index%, ";0$", ";000000")
-    StringSplit, Config_foreColor_#%A_Index%_#, Config_foreColor_#%A_Index%, `;
-
-    StringReplace, Config_fontColor_#%A_Index%, Config_fontColor_#%A_Index%, `;0`;, `;000000`;, All
-    Config_fontColor_#%A_Index% := RegExReplace(Config_fontColor_#%A_Index%, "^0;", "000000;")
-    Config_fontColor_#%A_Index% := RegExReplace(Config_fontColor_#%A_Index%, ";0$", ";000000")
-    StringSplit, Config_fontColor_#%A_Index%_#, Config_fontColor_#%A_Index%, `;
-  }
-}
-
-Config_convertSystemColor(systemColor)
-{ ;; systemColor format: 0xBBGGRR
-  rr := SubStr(systemColor, 7, 2)
-  gg := SubStr(systemColor, 5, 2)
-  bb := SubStr(systemColor, 3, 2)
-
-  Return, rr gg bb
-}
-
 Config_edit() {
   Global Config_filePath
   
   If Not FileExist(Config_filePath)
     Config_UI_saveSession()
   Run, edit %Config_filePath%
-}
-
-Config_getSystemSettings() {
-  Global Config_backColor_#1, Config_foreColor_#1, Config_fontColor_#1
-  Global Config_backColor_#2, Config_foreColor_#2, Config_fontColor_#2
-  Global Config_backColor_#3, Config_foreColor_#3, Config_fontColor_#3
-  Global Config_fontName, Config_fontSize, Config_scalingFactor
-
-  If Not Config_fontName {
-    ncmSize := VarSetCapacity(ncm, 4 * (A_OSVersion = "WIN_VISTA" ? 11 : 10) + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), 0)
-    NumPut(ncmSize, ncm, 0, "UInt")
-    DllCall("SystemParametersInfo", "UInt", 0x0029, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
-
-    VarSetCapacity(lf, 28 + 32 * (A_IsUnicode ? 2 : 1), 0)
-    DllCall("RtlMoveMemory", "Str", lf, "UInt", &ncm + 24, "UInt", 28 + 32 * (A_IsUnicode ? 2 : 1))
-    VarSetCapacity(Config_fontName, 32 * (A_IsUnicode ? 2 : 1), 0)
-    DllCall("RtlMoveMemory", "Str", Config_fontName, "UInt", &lf + 28, "UInt", 32 * (A_IsUnicode ? 2 : 1))
-    ;; maestrith: Script Writer (http://www.autohotkey.net/~maestrith/Script Writer/)
-  }
-  If Not Config_fontSize {
-    ncmSize := VarSetCapacity(ncm, 4 * (A_OSVersion = "WIN_VISTA" ? 11 : 10) + 5 * (28 + 32 * (A_IsUnicode ? 2 : 1)), 0)
-    NumPut(ncmSize, ncm, 0, "UInt")
-    DllCall("SystemParametersInfo", "UInt", 0x0029, "UInt", ncmSize, "UInt", &ncm, "UInt", 0)
-
-    lfSize := VarSetCapacity(lf, 28 + 32 * (A_IsUnicode ? 2 : 1), 0)
-    NumPut(lfSize, lf, 0, "UInt")
-    DllCall("RtlMoveMemory", "Str", lf, "UInt", &ncm + 24, "UInt", 28 + 32 * (A_IsUnicode ? 2 : 1))
-
-    lfHeightSize := VarSetCapacity(lfHeight, 4, 0)
-    NumPut(lfHeightSize, lfHeight, 0, "Int")
-    lfHeight := NumGet(lf, 0, "Int")
-
-    lfPixelsY := DllCall("GetDeviceCaps", "UInt", DllCall("GetDC", "UInt", 0), "UInt", 90)  ;; LOGPIXELSY
-    Config_fontSize := -DllCall("MulDiv", "Int", lfHeight, "Int", 72, "Int", lfPixelsY)
-    ;; maestrith: Script Writer (http://www.autohotkey.net/~maestrith/Script Writer/)
-  }
-  SetFormat, Integer, hex
-  If Not (Config_backColor_#1 And Config_foreColor_#1 And Config_fontColor_#1
-      And Config_backColor_#2 And Config_foreColor_#2 And Config_fontColor_#2
-      And Config_backColor_#3 And Config_foreColor_#3 And Config_fontColor_#3) {
-    COLOR_ACTIVECAPTION           := Config_convertSystemColor(DllCall("GetSysColor", "Int",  2))
-    COLOR_CAPTIONTEXT             := Config_convertSystemColor(DllCall("GetSysColor", "Int",  9))
-    COLOR_GRADIENTACTIVECAPTION   := Config_convertSystemColor(DllCall("GetSysColor", "Int", 27))
-    COLOR_GRADIENTINACTIVECAPTION := Config_convertSystemColor(DllCall("GetSysColor", "Int", 28))
-    COLOR_HIGHLIGHT               := Config_convertSystemColor(DllCall("GetSysColor", "Int", 13))
-    COLOR_INACTIVECAPTION         := Config_convertSystemColor(DllCall("GetSysColor", "Int",  3))
-    COLOR_INACTIVECAPTIONTEXT     := Config_convertSystemColor(DllCall("GetSysColor", "Int", 19))
-    COLOR_MENU                    := Config_convertSystemColor(DllCall("GetSysColor", "Int",  4))
-    COLOR_MENUTEXT                := Config_convertSystemColor(DllCall("GetSysColor", "Int",  7))
-    ;; <view>;<layout>            ;;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>
-    If Not Config_backColor_#1 {
-      Config_backColor_#1 := COLOR_GRADIENTINACTIVECAPTION ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";"
-      Config_backColor_#1 .= COLOR_GRADIENTINACTIVECAPTION ";" COLOR_GRADIENTACTIVECAPTION ";" COLOR_GRADIENTACTIVECAPTION
-    }
-    If Not Config_backColor_#2
-      Config_backColor_#2 := COLOR_GRADIENTACTIVECAPTION ";;;;;;;" COLOR_MENU ";" COLOR_MENU
-    If Not Config_backColor_#3
-      Config_backColor_#3 := ";;;;;;;ff8040;"
-
-    If Not Config_foreColor_#1 {
-      Config_foreColor_#1 := COLOR_INACTIVECAPTION ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";" COLOR_MENU ";" COLOR_ACTIVECAPTION ";"
-      Config_foreColor_#1 .= COLOR_INACTIVECAPTION ";" COLOR_ACTIVECAPTION ";" COLOR_GRADIENTINACTIVECAPTION
-    }
-    If Not Config_foreColor_#2
-      Config_foreColor_#2 := COLOR_ACTIVECAPTION ";;;;;;;" COLOR_HIGHLIGHT ";" COLOR_HIGHLIGHT
-    If Not Config_foreColor_#3
-      Config_foreColor_#3 := ";;;;;;;" COLOR_INACTIVECAPTION ";"
-
-    If Not Config_fontColor_#1 {
-      Config_fontColor_#1 := COLOR_INACTIVECAPTIONTEXT ";" COLOR_CAPTIONTEXT ";" COLOR_MENUTEXT ";" COLOR_CAPTIONTEXT ";" COLOR_MENUTEXT ";" COLOR_CAPTIONTEXT ";"
-      Config_fontColor_#1 .= COLOR_INACTIVECAPTIONTEXT ";" COLOR_CAPTIONTEXT ";" COLOR_INACTIVECAPTIONTEXT
-    }
-    If Not Config_fontColor_#2
-      Config_fontColor_#2 := COLOR_CAPTIONTEXT ";;;;;;;" COLOR_MENUTEXT ";" COLOR_MENUTEXT
-    If Not Config_fontColor_#3
-      Config_fontColor_#3 := ";;;;;;;" COLOR_INACTIVECAPTIONTEXT ";"
-  }
-  SetFormat, Integer, d
-
-  RegRead, appliedDPI, HKEY_CURRENT_USER, Control Panel\Desktop\WindowMetrics, AppliedDPI
-  If (ErrorLevel = 0)
-    Config_scalingFactor := 96 / appliedDPI
 }
 
 Config_hotkeyLabel:
