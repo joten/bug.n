@@ -264,8 +264,7 @@ Monitor_setWindowTag(i, d = 0) {
           Manager_hideShow := True
           Window_hide(aWndId)
           Manager_hideShow := False
-          If Config_dynamicTiling
-            View_arrange(Manager_aMonitor, aView)
+          View_arrange(Manager_aMonitor, aView)
           Bar_updateView(Manager_aMonitor, i)
         }
       }
@@ -310,8 +309,7 @@ Monitor_toggleWindowTag(i, d = 0) {
           Manager_hideShow := False
           wndId := SubStr(View_#%Manager_aMonitor%_#%i%_wndIds, 1, InStr(View_#%Manager_aMonitor%_#%i%_wndIds, ";")-1)
           Manager_winActivate(wndId)
-          If Config_dynamicTiling
-            View_arrange(Manager_aMonitor, i)
+          View_arrange(Manager_aMonitor, i)
         }
       }
     } Else {

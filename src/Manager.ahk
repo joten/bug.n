@@ -137,10 +137,6 @@ Manager_cleanup()
     Window_show(A_LoopField)
     Window_set(A_LoopField, "Style", "+0xC00000")
   }
-
-  ;; Show the task bar.
-  WinShow, Start ahk_class Button
-  WinShow, ahk_class Shell_TrayWnd
   Manager_hideShow := False
 
   ;; Restore window positions and sizes.
@@ -151,7 +147,7 @@ Manager_cleanup()
     Monitor_getWorkArea(m)
     Loop, % Config_viewCount
     {
-      View_arrange(m, A_Index, True)
+      View_arrange(m, A_Index)
     }
   }
   Window_set(aWndId, "AlwaysOnTop", "On")
@@ -546,8 +542,7 @@ Manager_onShellMessage(wParam, lParam) {
 
     If isChanged
     {
-      If Config_dynamicTiling
-        View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
+      View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
       Bar_updateView(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
     }
 
@@ -600,8 +595,7 @@ Manager_onShellMessage(wParam, lParam) {
             Window_#%wndId%_tags += 1 << t - 1
           }
           Bar_updateView(Manager_aMonitor, t)
-          If Config_dynamicTiling
-            View_arrange(Manager_aMonitor, t)
+          View_arrange(Manager_aMonitor, t)
         }
       }
     }
@@ -644,8 +638,7 @@ Manager_override(rule = "") {
       Return
   }
   Manager_manage(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1, aWndId, rule)
-  If Config_dynamicTiling
-    View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
+  View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
   Bar_updateView(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
 }
 
@@ -967,8 +960,7 @@ Manager_setWindowMonitor(i, d = 0) {
       StringReplace, View_#%Manager_aMonitor%_#%A_Index%_aWndIds, View_#%Manager_aMonitor%_#%A_Index%_aWndIds, %aWndId%`;, All
       Bar_updateView(Manager_aMonitor, A_Index)
     }
-    If Config_dynamicTiling
-      View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
+    View_arrange(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
 
     ;; Manually set the active monitor.
     If (i = 0)
@@ -979,8 +971,7 @@ Manager_setWindowMonitor(i, d = 0) {
     Window_#%aWndId%_tags := 1 << v - 1
     View_#%Manager_aMonitor%_#%v%_wndIds := aWndId ";" View_#%Manager_aMonitor%_#%v%_wndIds
     View_setActiveWindow(Manager_aMonitor, v, aWndId)
-    If Config_dynamicTiling
-      View_arrange(Manager_aMonitor, v)
+    View_arrange(Manager_aMonitor, v)
     Manager_winActivate(aWndId)
     Bar_updateView(Manager_aMonitor, v)
   }

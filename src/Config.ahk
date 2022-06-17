@@ -25,7 +25,6 @@ Config_init() {
   Config_spaciousBar       := False
   Config_fontName          := "Lucida Console"
   Config_fontSize          := 10
-  Config_largeFontSize     := 24
   Config_scalingFactor     := 96 / A_ScreenDPI            ;; Undocumented. It should not be set manually by the user,
                                                           ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
   Config_barTransparency   := "off"
@@ -50,9 +49,6 @@ Config_init() {
   Config_layoutAxis_#3      := 2
   Config_layoutGapWidth     := 0
   Config_layoutMFactor      := 0.6
-  Config_areaTraceTimeout   := 1000
-  Config_continuouslyTraceAreas := False
-  Config_dynamicTiling      := True
   Config_ghostWndSubString  := " (Not Responding)"
   Config_mFactCallInterval  := 700
   Config_mouseFollowsFocus  := True
@@ -282,20 +278,6 @@ Config_UI_saveSession() {
 #+x::Manager_maximizeWindow()
 #i::Manager_getWindowInfo()
 #+i::Manager_getWindowList()
-!Down::View_moveWindow(0, +1)
-!Up::View_moveWindow(0, -1)
-!+Enter::Manager_maximizeWindow()
-!1::View_moveWindow(1)
-!2::View_moveWindow(2)
-!3::View_moveWindow(3)
-!4::View_moveWindow(4)
-!5::View_moveWindow(5)
-!6::View_moveWindow(6)
-!7::View_moveWindow(7)
-!8::View_moveWindow(8)
-!9::View_moveWindow(9)
-!0::View_moveWindow(10)
-!BackSpace::View_toggleStackArea()
 
 ;; Layout management
 #Tab::View_setLayout(-1)
@@ -360,7 +342,6 @@ Config_UI_saveSession() {
 
 ;; GUI management
 #+Space::Monitor_toggleBar()
-!+y::View_traceAreas()
 
 ;; Administration
 #^e::Config_edit()

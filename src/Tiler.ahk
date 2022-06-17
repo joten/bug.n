@@ -109,7 +109,7 @@ Tiler_isActive(m, v) {
   Return, (Config_layoutFunction_#%l% = "tile")
 }
 
-Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
+Tiler_layoutTiles(m, v, x, y, w, h) {
   Local axis1, axis2, axis3, gapW, hasStackArea, mFact, mSplit, mXSet, mYSet, mYActual, n
   Local h1, h2, mWndCount, stackLen, subAreaCount, subAreaWndCount, subH1, subW1, subX1, subY1, w1, w2, x1, x2, y1, y2
 
@@ -121,20 +121,16 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
   mXSet  := (axis2 = 1) ? View_#%m%_#%v%_layoutMX : View_#%m%_#%v%_layoutMY
   mYSet  := (axis2 = 1) ? View_#%m%_#%v%_layoutMY : View_#%m%_#%v%_layoutMX
   mSplit := mXSet * mYSet
-  hasStackArea := (type = "blank") ? View_#%m%_#%v%_showStackArea : (View_tiledWndId0 > mSplit)
-  n := (type = "blank") ? mSplit : View_tiledWndId0
+  hasStackArea := (View_tiledWndId0 > mSplit)
+  n := View_tiledWndId0
 
   View_#%m%_#%v%_layoutSymbol := Tiler_getLayoutSymbol(m, v, n)
 
-  If (type = "blank")
-    View_#%m%_#%v%_area_#0 := 0
-  Else {
-    If (View_tiledWndId0 = 0)
-      Return
-    If (mSplit > View_tiledWndId0)
-      mSplit := View_tiledWndId0
-  }
-
+  If (View_tiledWndId0 = 0)
+    Return
+  If (mSplit > View_tiledWndId0)
+    mSplit := View_tiledWndId0
+  
   ;; Areas (master and stack)
   x1 := x
   y1 := y
@@ -149,9 +145,9 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
 
   ;; Master
   If (axis2 = 3)
-    Tiler_stackTiles(m, v, 1, mSplit, +1, 3, x1, y1, w1, h1, 0, type)
+    Tiler_stackTiles(m, v, 1, mSplit, +1, 3, x1, y1, w1, h1, 0)
   Else {
-    mYActual := (type = "blank") ? mYSet : Ceil(mSplit / mXSet)
+    mYActual := Ceil(mSplit / mXSet)
     subAreaCount := mYActual
     mWndCount := mSplit
     Loop, % mYActual {
@@ -159,7 +155,7 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
       subAreaWndCount := mXSet
       If (mWndCount < subAreaWndCount)
         subAreaWndCount := mWndCount
-      Tiler_stackTiles(m, v, mSplit - mWndCount + 1, subAreaWndCount, +1, axis2, subX1, subY1, subW1, subH1, gapW, type)
+      Tiler_stackTiles(m, v, mSplit - mWndCount + 1, subAreaWndCount, +1, axis2, subX1, subY1, subW1, subH1, gapW)
       mWndCount -= subAreaWndCount
       subAreaCount -= 1
     }
@@ -167,18 +163,14 @@ Tiler_layoutTiles(m, v, x, y, w, h, type = "") {
 
   ;; Stack
   If hasStackArea {
-    If (type = "blank") {
-      Tiler_stackTiles(m, v, mSplit + 1, 1, +1, 3, x2, y2, w2, h2, 0, type)
-    } Else {
-      stackLen := View_tiledWndId0 - mSplit
-      ;; 161 is the minimal width of an Windows-Explorer window, below which it cannot be resized.
-      ;; The minimal height is 243, but this seems too high for being a limit here;
-      ;; therefor '2 * Bar_height' is used for the minimal height of a window.
-      If (axis3 = 3 Or (axis3 = 1 And (w2 - (stackLen - 1) * gapW) / stackLen < 161) Or (axis3 = 2 And (h2 - (stackLen - 1) * gapW) / stackLen < 2 * Bar_height))
-        Tiler_stackTiles(m, v, mSplit + 1, stackLen, +1, 3, x2, y2, w2, h2, 0, type)
-      Else
-        Tiler_stackTiles(m, v, mSplit + 1, stackLen, +1, axis3, x2, y2, w2, h2, gapW, type)
-    }
+    stackLen := View_tiledWndId0 - mSplit
+    ;; 161 is the minimal width of an Windows-Explorer window, below which it cannot be resized.
+    ;; The minimal height is 243, but this seems too high for being a limit here;
+    ;; therefor '2 * Bar_height' is used for the minimal height of a window.
+    If (axis3 = 3 Or (axis3 = 1 And (w2 - (stackLen - 1) * gapW) / stackLen < 161) Or (axis3 = 2 And (h2 - (stackLen - 1) * gapW) / stackLen < 2 * Bar_height))
+      Tiler_stackTiles(m, v, mSplit + 1, stackLen, +1, 3, x2, y2, w2, h2, 0)
+    Else
+      Tiler_stackTiles(m, v, mSplit + 1, stackLen, +1, axis3, x2, y2, w2, h2, gapW)
   }
 }
 
@@ -290,7 +282,7 @@ Tiler_splitArea(axis, splitRatio, x, y, w, h, gapW, ByRef x1, ByRef y1, ByRef w1
 ;;           w - Width of the stacking area
 ;;           h - Height of the stacking area
 ;;     padding - Number of pixels to put between areas/windows.
-Tiler_stackTiles(m, v, i, len, d, axis, x, y, w, h, padding, type = "") {
+Tiler_stackTiles(m, v, i, len, d, axis, x, y, w, h, padding) {
   Local dx, dy, tileH, tileW, tileX, tileY
 
   ;; d = +1: Left-to-right and top-to-bottom, depending on axis
@@ -314,57 +306,9 @@ Tiler_stackTiles(m, v, i, len, d, axis, x, y, w, h, padding, type = "") {
   ;; Else (axis = 3) and nothing to do
 
   Loop, % len {
-    If (type = "blank")
-      Tiler_addSubArea(m, v, i, tileX, tileY, tileW, tileH)
-    Else
-      Window_move(View_tiledWndId%i%, tileX, tileY, tileW, tileH)
+    Window_move(View_tiledWndId%i%, tileX, tileY, tileW, tileH)
     i += d
     tileX += dx
     tileY += dy
   }
-}
-
-Tiler_toggleStackArea(m ,v) {
-  Global
-
-  View_#%m%_#%v%_showStackArea := Not View_#%m%_#%v%_showStackArea
-  If Not View_#%m%_#%v%_showStackArea
-    View_#%m%_#%v%_layoutAxis_#3 := 3
-}
-
-Tiler_traceAreas(m, v, continuously) {
-  Local h1, h2, n, w1, w2, wndTitle, x1, x2, y1, y2, y3
-
-  x1 := Monitor_#%m%_x + View_#%m%_#%v%_layoutGapWidth + View_#%m%_#%v%_margin4
-  y1 := Monitor_#%m%_y + View_#%m%_#%v%_layoutGapWidth + View_#%m%_#%v%_margin1
-  w1 := Monitor_#%m%_width - 2 * View_#%m%_#%v%_layoutGapWidth - View_#%m%_#%v%_margin4 - View_#%m%_#%v%_margin2
-  h1 := Monitor_#%m%_height - 2 * View_#%m%_#%v%_layoutGapWidth - View_#%m%_#%v%_margin1 - View_#%m%_#%v%_margin3
-  wndTitle := "bug.n_TRACE_" m "_" v
-  Gui, 98: Default
-  Gui, Destroy
-  Gui, +AlwaysOnTop -Caption +Disabled +ToolWindow
-  Gui, Color, %Config_foreColor_#2_#1%
-  Gui, Font, c%Config_fontColor_#1_#3% s%Config_largeFontSize%, %Config_fontName%
-
-  n := View_#%m%_#%v%_area_#0
-  Loop, % n {
-    x2 := View_#%m%_#%v%_area_#%A_Index%_x - x1
-    y2 := View_#%m%_#%v%_area_#%A_Index%_y - y1
-    w2 := View_#%m%_#%v%_area_#%A_Index%_width
-    h2 := View_#%m%_#%v%_area_#%A_Index%_height
-    y3 := y2 + (h2 - Config_largeFontSize) / 2
-    Gui, Add, Progress, x%x2% y%y2% w%w2% h%h2% Background%Config_backColor_#1_#3%, 100
-    Gui, Add, Text, x%x2% y%y3% w%w2% BackgroundTrans Center, % A_Index
-  }
-
-  Gui, Show, NoActivate x%x1% y%y1% w%w1% h%h1%, %wndTitle%
-  WinSet, Transparent, 191, % wndTitle
-  If Not continuously {
-    Sleep, % Config_areaTraceTimeout
-    If Not Config_continuouslyTraceAreas
-      Gui, Destroy
-    Else
-      WinSet, Bottom,, % wndTitle
-  } Else
-    WinSet, Bottom,, % wndTitle
 }

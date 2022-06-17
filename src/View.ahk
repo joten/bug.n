@@ -30,7 +30,6 @@ View_init(m, v)
   View_#%m%_#%v%_layoutMY       := 1
   View_#%m%_#%v%_layoutSymbol   := Config_layoutSymbol_#1
   View_#%m%_#%v%_margins        := "0;0;0;0"
-  View_#%m%_#%v%_showStackArea  := True
   StringSplit, View_#%m%_#%v%_margin, View_#%m%_#%v%_margins, `;
   View_#%m%_#%v%_wndIds         := ""
 }
@@ -122,20 +121,14 @@ View_arrange(m, v, setLayout = False) {
 
     ;; All window actions are performed on independent windows. A delay won't help.
     SetWinDelay, 0
-    If Config_dynamicTiling Or setLayout {
-      View_getTiledWndIds(m, v)
-      If (fn = "monocle") {
-        ;; 'View_getLayoutSymbol_monocle'
-        View_#%m%_#%v%_layoutSymbol := "[" View_tiledWndId0 "]"
-        ;; 'View_arrange_monocle'
-        Tiler_stackTiles(0, 0, 1, View_tiledWndId0, +1, 3, x, y, w, h, 0)
-      } Else    ;; (fn = "tile")
-        Tiler_layoutTiles(m, v, x, y, w, h)
-    } Else If (fn = "tile") {
-      Tiler_layoutTiles(m, v, x, y, w, h, "blank")
-      If Config_continuouslyTraceAreas
-        View_traceAreas(True)
-    }
+    View_getTiledWndIds(m, v)
+    If (fn = "monocle") {
+      ;; 'View_getLayoutSymbol_monocle'
+      View_#%m%_#%v%_layoutSymbol := "[" View_tiledWndId0 "]"
+      ;; 'View_arrange_monocle'
+      Tiler_stackTiles(0, 0, 1, View_tiledWndId0, +1, 3, x, y, w, h, 0)
+    } Else    ;; (fn = "tile")
+      Tiler_layoutTiles(m, v, x, y, w, h)
     SetWinDelay, 10
   }
   Else    ;; floating layout (no 'View_arrange_', following is 'View_getLayoutSymbol_')'
@@ -220,7 +213,6 @@ View_moveToIndex(m, v, n, w) {
   View_#%n%_#%w%_layoutMY       := View_#%m%_#%v%_layoutMY
   View_#%n%_#%w%_layoutSymbol   := View_#%m%_#%v%_layoutSymbol
   View_#%n%_#%w%_margins        := View_#%m%_#%v%_margins
-  View_#%n%_#%w%_showStackArea  := View_#%m%_#%v%_showStackArea
   View_#%n%_#%w%_wndIds         := View_#%m%_#%v%_wndIds
   StringSplit, View_#%n%_#%w%_margin, View_#%n%_#%w%_margins, `;
   StringTrimRight, wndIds, View_#%n%_#%w%_wndIds, 1
@@ -229,22 +221,6 @@ View_moveToIndex(m, v, n, w) {
     Window_#%A_LoopField%_monitor := n
     Window_#%A_LoopField%_tags -= 1 << v - 1
     Window_#%A_LoopField%_tags += 1 << w - 1
-  }
-}
-
-; @TODO: Theoretically, something is wrong here. From the hotkeys this should be manual tiling, but the function says otherwise.
-View_moveWindow(i=0, d=0) {
-  Local aWndId, m, v
-
-  WinGet, aWndId, ID, A
-  m := Manager_aMonitor
-  v := Monitor_#%m%_aView_#1
-  If Tiler_isActive(Manager_aMonitor, v) And InStr(Manager_managedWndIds, aWndId ";") And Not (i = 0 And d = 0) And View_#%m%_#%v%_area_#0 And (i <= View_#%m%_#%v%_area_#0) {
-    If (i = 0)
-      i := Manager_loop(Window_#%aWndId%_area, d, 1, View_#%m%_#%v%_area_#0)
-    Window_move(aWndId, View_#%m%_#%v%_area_#%i%_x, View_#%m%_#%v%_area_#%i%_y, View_#%m%_#%v%_area_#%i%_width, View_#%m%_#%v%_area_#%i%_height)
-    Window_#%aWndId%_area := i
-    Manager_setCursor(aWndId)
   }
 }
 
@@ -266,7 +242,6 @@ View_resetTileLayout() {
   View_#%m%_#%v%_layoutMY       := 1
   View_#%m%_#%v%_layoutSymbol   := Config_layoutSymbol_#1
   View_#%m%_#%v%_margins        := "0;0;0;0"
-  View_#%m%_#%v%_showStackArea  := True
   StringSplit, View_#%m%_#%v%_margin, View_#%m%_#%v%_margins, `;
   
   If Tiler_isActive(m, v)
@@ -311,7 +286,7 @@ View_setLayout(i, d = 0) {
       View_#%Manager_aMonitor%_#%v%_layout_#2 := View_#%Manager_aMonitor%_#%v%_layout_#1
       View_#%Manager_aMonitor%_#%v%_layout_#1 := i
     }
-    View_arrange(Manager_aMonitor, v, True)
+    View_arrange(Manager_aMonitor, v)
   }
 }
 
@@ -402,22 +377,4 @@ View_toggleMargins()
     StringSplit, View_#%Manager_aMonitor%_#%v%_margin, View_#%Manager_aMonitor%_#%v%_margins, `;
     View_arrange(Manager_aMonitor, v)
   }
-}
-
-View_toggleStackArea() {
-  Local v
-
-  v := Monitor_#%Manager_aMonitor%_aView_#1
-  If Tiler_isActive(Manager_aMonitor, v) And Not Config_dynamicTiling {
-    Tiler_toggleStackArea(Manager_aMonitor, v)
-    View_arrange(Manager_aMonitor, v)
-  }
-}
-
-View_traceAreas(continuously = False) {
-  Local v
-
-  v := Monitor_#%Manager_aMonitor%_aView_#1
-  If Tiler_isActive(Manager_aMonitor, v) And Not Config_dynamicTiling
-    Tiler_traceAreas(Manager_aMonitor, v, continuously)
 }
