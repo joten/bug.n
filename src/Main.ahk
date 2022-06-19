@@ -42,11 +42,6 @@ SetWinDelay, 10
     Menu, Tray, Icon, %A_ScriptFullPath%, -159
   If FileExist(A_ScriptDir . "\logo.ico")
     Menu, Tray, Icon, % A_ScriptDir . "\logo.ico"
-  Menu, Tray, NoStandard
-  Menu, Tray, Add, Toggle bar, Main_toggleBar
-  Menu, Tray, Add, Help, Main_help
-  Menu, Tray, Add,
-  Menu, Tray, Add, Exit, Main_quit
 
   Manager_init()
 Return          ;; end of the auto-execute section
@@ -62,30 +57,7 @@ ExitApp
 Main_evalCommand(command)
 {
   type := SubStr(command, 1, 5)
-  If (type = "Run, ")
-  {
-    parameters := SubStr(command, 6)
-    If InStr(parameters, ", ")
-    {
-      StringSplit, parameter, parameters, `,
-      If (parameter0 = 2)
-      {
-        StringTrimLeft, parameter2, parameter2, 1
-        Run, %parameter1%, %parameter2%
-      }
-      Else If (parameter0 > 2)
-      {
-        StringTrimLeft, parameter2, parameter2, 1
-        StringTrimLeft, parameter3, parameter3, 1
-        Run, %parameter1%, %parameter2%, %parameter3%
-      }
-    }
-    Else
-      Run, %parameters%
-  }
-  Else If (type = "Send ")
-    Send % SubStr(command, 6)
-  Else If (command = "Reload")
+  If (command = "Reload")
     Reload
   Else If (command = "ExitApp")
     ExitApp
@@ -113,10 +85,6 @@ Main_evalCommand(command)
   }
 }
 
-Main_help:
-  Run, explore %Main_docDir%
-Return
-
 ;; Create bug.n-specific directories.
 Main_makeDir(dirName) {
   IfNotExist, %dirName%
@@ -138,10 +106,6 @@ Main_makeDir(dirName) {
     }
   }
 }
-
-Main_quit:
-  ExitApp
-Return
 
 Main_setup() {
   Local winAppDir
@@ -168,10 +132,6 @@ Main_setup() {
   Main_makeDir(Main_appDir)
   Main_makeDir(Main_dataDir)
 }
-
-Main_toggleBar:
-  Monitor_toggleBar()
-Return
 
 #Include Bar.ahk
 #Include Config.ahk
