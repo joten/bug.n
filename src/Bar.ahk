@@ -56,12 +56,6 @@ Bar_init(m) {
   Bar_addElement(m, "layout", " ?????? ", x1, y1, w, Config_backColor_#1_#2, Config_foreColor_#1_#2, Config_fontColor_#1_#2)
   x1 += w
 
-  If Not Config_singleRowBar {
-    x1 := 0
-    y1 += h1
-    y2 += h1
-  }
-
   If (Config_horizontalBarPos = "left")
     x1 := 0
   Else If (Config_horizontalBarPos = "right")
@@ -216,17 +210,6 @@ Bar_GuiContextMenu:
     }
   }
 Return
-
-Bar_move(m)
-{
-  Local wndTitle, x, y
-
-  x := Monitor_#%m%_barX
-  y := Monitor_#%m%_barY
-
-  wndTitle := "bug.n_BAR_" m
-  WinMove, %wndTitle%, , %x%, %y%
-}
 
 Bar_toggleVisibility(m)
 {
