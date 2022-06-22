@@ -76,12 +76,12 @@ Config_init() {
   Config_ruleCount := 18  ;; This variable has to be set to the total number of active rules above.
 
   ;; Configuration management
-  Config_autoSaveSession := "auto"                ;; "off" | "auto" | "ask"
+  Config_autoSaveSession := "auto"                ;; "off" | "auto" | "ask"; `Config_autoSaveSession := False` is deprecated.
   Config_maintenanceInterval := 5000
   Config_monitorDisplayChangeMessages := "ask"    ;; "off" | "on" | "ask"
 
   Config_hotkeyCount := 0
-  Config_restoreConfig(Config_filePath)
+  Config_restoreConfig(Main.configFile)
   
   Loop, 3 {
     StringSplit, Config_backColor_#%A_Index%_#, Config_backColor_#%A_Index%, `;
@@ -103,11 +103,11 @@ Config_init() {
 }
 
 Config_edit() {
-  Global Config_filePath
+  Global Main
   
-  If Not FileExist(Config_filePath)
+  If Not FileExist(Main.configFile)
     Config_UI_saveSession()
-  Run, edit %Config_filePath%
+  Run, % "edit " . Main.configFile
 }
 
 Config_hotkeyLabel:
@@ -242,7 +242,7 @@ Config_saveSession(original, target)
   ;; The FileMove below is an all-or-nothing replacement of the file.
   ;; We don't want to leave this half-finished.
   FileAppend, %text%, %tmpfilename%
-  If ErrorLevel And Not (original = Config_filePath And target = Config_filePath And Not FileExist(original)) {
+  If ErrorLevel And Not (original = Main.configFile And target = Main.configFile And Not FileExist(original)) {
     If FileExist(tmpfilename)
       FileDelete, %tmpfilename%
   } Else
@@ -250,9 +250,9 @@ Config_saveSession(original, target)
 }
 
 Config_UI_saveSession() {
-  Global Config_filePath
+  Global Main
 
-  Config_saveSession(Config_filePath, Config_filePath)
+  Config_saveSession(Main.configFile, Main.configFile)
 }
 
 #MaxHotkeysPerInterval 200

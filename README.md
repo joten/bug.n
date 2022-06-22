@@ -62,7 +62,7 @@ user interface of bug.n will be reduced to a minimum.
 
 * Technically: Microsoft Windows 2000 or higher; 
   for security reasons: Microsoft Windows 10 or higher!
-* [AutoHotkey](https://www.autohotkey.com/download/) 1.1.11 or higher 
+* [AutoHotkey](https://www.autohotkey.com/download/) 1.1.27 or higher 
   (if running bug.n from source as a script)
 
 You may either

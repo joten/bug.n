@@ -8,130 +8,117 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-NAME  := "bug.n"
-VERSION := "9.1.0"
+NAME := "bug.n"
+VERSION := "redux v0.0.1-alpha.1"
 
-;; Script settings
-OnExit, Main_cleanup
-SetBatchLines, -1
-SetTitleMatchMode, 3
-SetTitleMatchMode, fast
-SetWinDelay, 10
-#NoEnv
-#SingleInstance force
-;#Warn                         ; Enable warnings to assist with detecting common errors.
+;; script settings
+#NoEnv                        ;; Recommended for performance and compatibility with future AutoHotkey releases.
+; #Warn                       ;; Enable warnings to assist with detecting common errors.
+SendMode Input                ;; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%   ;; Ensures a consistent starting directory.
+#Persistent                   ;;
+#SingleInstance Force
 #WinActivateForce
+DetectHiddenText, Off         ;;
+DetectHiddenWindows, Off      ;;
+OnExit("Main_cleanup")
+SetBatchLines,    -1
+SetControlDelay,   0          ;;
+SetMouseDelay,     0          ;;
+SetTitleMatchMode, 3          ;; `TitleMatchMode` may be set to `RegEx` to enable a wider search, but should be reset afterwards.
+SetWinDelay,      10          ;; `WinDelay` may be set to a different value e.g. 10, if necessary to prevent timing issues, but should be reset to 0 afterwards.
 
-;; Pseudo main function
-  Main_appDir := ""
-  If 0 = 1
-    Main_appDir = %1%
-
+;; pseudo main function
+  Main := {appDir: "", configFile: "", logFile: "", layoutsFile: "", windowsFile: ""}
   Main_setup()
-
- Config_filePath := Main_appDir "\Config.ini"
   Config_init()
 
-  Menu, Tray, Tip, %NAME% %VERSION%
-  If A_IsCompiled
-    Menu, Tray, Icon, %A_ScriptFullPath%, -159
-  If FileExist(A_ScriptDir . "\logo.ico")
+  Menu, Tray, Tip, % NAME . " " . VERSION
+  If (A_IsCompiled) {
+    Menu, Tray, Icon, % A_ScriptFullPath, -159
+  }
+  If (FileExist(A_ScriptDir . "\logo.ico")) {
     Menu, Tray, Icon, % A_ScriptDir . "\logo.ico"
+  }
 
   Manager_init()
-Return          ;; end of the auto-execute section
+Return
+;; end of the auto-execute section
 
-;; Function & label definitions
-Main_cleanup:
-  ;; Config_autoSaveSession as False is deprecated.
-  If Not (Config_autoSaveSession = "off") And Not (Config_autoSaveSession = "False")
+;; function, label & object definitions
+Main_cleanup() {
+  Global Config_autoSaveSession
+
+  If (Config_autoSaveSession != "off") {
     Manager_saveState()
+  }
   Manager_cleanup()
-ExitApp
+}
 
-Main_evalCommand(command)
-{
-  type := SubStr(command, 1, 5)
-  If (command = "Reload")
+Main_evalCommand(cmd) {
+  If (cmd == "Reload") {
     Reload
-  Else If (command = "ExitApp")
+  } Else If (cmd == "ExitApp") {
     ExitApp
-  Else
-  {
-    i := InStr(command, "(")
-    j := InStr(command, ")", False, i)
-    If i And j
-    {
-      functionName := SubStr(command, 1, i - 1)
-      functionArguments := SubStr(command, i + 1, j - (i + 1))
-      StringReplace, functionArguments, functionArguments, %A_SPACE%, , All
-      StringSplit, functionArgument, functionArguments, `,
-      If (functionArgument0 = 0)
-        %functionName%()
-      Else If (functionArgument0 = 1)
-        %functionName%(functionArguments)
-      Else If (functionArgument0 = 2)
-        %functionName%(functionArgument1, functionArgument2)
-      Else If (functionArgument0 = 3)
-        %functionName%(functionArgument1, functionArgument2, functionArgument3)
-      Else If (functionArgument0 = 4)
-        %functionName%(functionArgument1, functionArgument2, functionArgument3, functionArgument4)
+  } Else {
+    i := InStr(cmd, "(")
+    j := InStr(cmd, ")", False, i)
+    If (i && j) {
+      funcName := SubStr(cmd, 1, i - 1)
+      funcArgs := SubStr(cmd, i + 1, j - (i + 1))
+      funcArgs := StrSplit(funcArgs, ",", A_Space)
+      If (funcArgs.Length() == 0) {
+        %funcName%()
+      } Else If (funcArgs.Length() == 1) {
+        %funcName%(funcArgs[1])
+      } Else If (funcArgs.Length() == 2) {
+        %funcName%(funcArgs[1], funcArgs[2])
+      } Else If (funcArgs.Length() == 3) {
+        %funcName%(funcArgs[1], funcArgs[2], funcArgs[3])
+      } Else If (funcArgs.Length() == 4) {
+        %funcName%(funcArgs[1], funcArgs[2], funcArgs[3], funcArgs[4])
+      }
     }
   }
 }
 
-;; Create bug.n-specific directories.
 Main_makeDir(dirName) {
-  IfNotExist, %dirName%
-  {
+  attrib := FileExist(dirName)
+  If (attrib == "") {
     FileCreateDir, %dirName%
-    If ErrorLevel
-    {
-      MsgBox, Error (%ErrorLevel%) when creating '%dirName%'. Aborting.
+    If (ErrorLevel) {
+      MsgBox, % "Error (" . ErrorLevel . ") creating '" . dirName . "'. Aborting."
       ExitApp
     }
-  }
-  Else
-  {
-    FileGetAttrib, attrib, %dirName%
-    IfNotInString, attrib, D
-    {
-      MsgBox, The file path '%dirName%' already exists and is not a directory. Aborting.
+  } Else {
+    If (!InStr(attrib, "D")) {
+      MsgBox, % "File path '" . dirName . "' already exists and is not a directory. Aborting."
       ExitApp
     }
   }
 }
 
 Main_setup() {
-  Local winAppDir
+  Global Main
 
-  Main_docDir := A_ScriptDir
-  If (SubStr(A_ScriptDir, -3) = "\src")
-    Main_docDir .= "\.."
-  Main_docDir .= "\doc"
+  If (A_Args.Length() == 1) {
+    Main.appDir := A_Args[1]
+  } Else {
+    EnvGet, appDataDir, APPDATA
+    Main.appDir := appDataDir . "\bug.n"
+  }
+  Main_makeDir(Main.appDir)
 
-  Main_logFile := ""
-  Main_dataDir := ""
-  Main_autoLayout := ""
-  Main_autoWindowState := ""
-
-  EnvGet, winAppDir, APPDATA
-
-  If (Main_appDir = "")
-    Main_appDir := winAppDir . "\bug.n"
-  Main_logFile := Main_appDir . "\log.txt"
-  Main_dataDir := Main_appDir . "\data"
-  Main_autoLayout := Main_dataDir . "\_Layout.ini"
-  Main_autoWindowState := Main_dataDir . "\_WindowState.ini"
-
-  Main_makeDir(Main_appDir)
-  Main_makeDir(Main_dataDir)
+  Main.logFile := Main.appDir . "\_log.txt"
+  Main.sessionLayoutsFile := Main.appDir . "\_layouts.ini"
+  Main.sessionWindowsFile := Main.appDir . "\_windows.ini"
+  Main.configFile := Main.appDir . "\config.ini"
 }
 
-#Include Bar.ahk
-#Include Config.ahk
-#Include Manager.ahk
-#Include Monitor.ahk
-#Include Tiler.ahk
-#Include View.ahk
-#Include Window.ahk
+#Include, %A_ScriptDir%\Bar.ahk
+#Include, %A_ScriptDir%\Config.ahk
+#Include, %A_ScriptDir%\Manager.ahk
+#Include, %A_ScriptDir%\Monitor.ahk
+#Include, %A_ScriptDir%\Tiler.ahk
+#Include, %A_ScriptDir%\View.ahk
+#Include, %A_ScriptDir%\Window.ahk

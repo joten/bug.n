@@ -19,9 +19,9 @@ Monitor_init(m, doRestore) {
   Loop, % Config_viewCount
     View_init(m, A_Index)
   If doRestore
-    Config_restoreLayout(Main_autoLayout, m)
+    Config_restoreLayout(Main.sessionLayoutsFile, m)
   Else
-    Config_restoreLayout(Config_filePath, m)
+    Config_restoreLayout(Main.configFile, m)
   SysGet, Monitor_#%m%_name, MonitorName, %m%
   Monitor_getWorkArea(m)
   Bar_init(m)

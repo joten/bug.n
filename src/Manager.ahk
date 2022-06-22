@@ -709,7 +709,7 @@ Manager_resetMonitorConfiguration() {
     View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
     Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
   }
-  Manager__restoreWindowState(Main_autoWindowState)
+  Manager__restoreWindowState(Main.sessionWindowsFile)
 
   Gui, +LastFound
   hWnd := WinExist()
@@ -827,17 +827,17 @@ Manager__restoreWindowState(filename) {
 
 Manager_saveState() {
   Critical
-  Global Config_filePath, Config_viewCount, Main_autoLayout, Main_autoWindowState, Manager_layoutDirty, Manager_monitorCount, Manager_windowsDirty
+  Global Config_viewCount, Main, Manager_layoutDirty, Manager_monitorCount, Manager_windowsDirty
 
   ;; @TODO: Check for changes to the layout.
   ;If Manager_layoutDirty {
-    Config_saveSession(Config_filePath, Main_autoLayout)
+    Config_saveSession(Main.configFile, Main.sessionLayoutsFile)
     Manager_layoutDirty := 0
   ;}
 
   ;; @TODO: Check for changes to windows.
   ;If Manager_windowsDirty {
-    Manager_saveWindowState(Main_autoWindowState, Manager_monitorCount, Config_viewCount)
+    Manager_saveWindowState(Main.sessionWindowsFile, Manager_monitorCount, Config_viewCount)
     Manager_windowsDirty := 0
   ;}
 }
@@ -998,7 +998,7 @@ Manager_initial_sync(doRestore) {
   ;; Use saved window placement settings to first determine
   ;;   which monitor/view a window should be attached to.
   If doRestore
-    Manager__restoreWindowState(Main_autoWindowState)
+    Manager__restoreWindowState(Main.sessionWindowsFile)
 
   ;; Check all remaining visible windows against the known windows
   WinGet, wndId, List, , ,
