@@ -1,16 +1,11 @@
 /*
-  bug.n -- tiling window management
-  Copyright (c) 2010-2019 Joshua Fuhs, joten
+:title:     bug.n - tiling window management
+:copyright: (c) 2022 joten <https://github.com/joten>
+                2010 - 2021 https://github.com/fuhsjr00/bug.n/graphs/contributors
+:license:  GNU General Public License version 3 (http://www.gnu.org/licenses/gpl-3.0.txt)
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  GNU General Public License for more details.
-
-  @license GNU General Public License version 3
-           ../LICENSE.md or <http://www.gnu.org/licenses/>
-
-  @version 9.1.0
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 NAME  := "bug.n"
