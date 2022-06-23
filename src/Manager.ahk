@@ -1138,6 +1138,7 @@ Manager_activateViewByMouse(d) {
 		Monitor_activateView(0, d)
 	}
 }
+;; Peptis: Added ability to change active view with mouse wheel (https://github.com/fuhsjr00/bug.n/commit/5b9e9a7d9897dfa2679a5513a7cfb1853bc16b92)
 
 /*
 :title:     bug.n/monitormanager

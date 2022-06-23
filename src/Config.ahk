@@ -256,6 +256,7 @@ Config_UI_saveSession() {
 }
 
 #MaxHotkeysPerInterval 200
+;; shadyalfred: Fix MaxHotkeysPerInterval when scrolling (https://github.com/fuhsjr00/bug.n/commit/db3cc3c08c09881073eca6638e54c6d4335f0179)
 
 ;; Key definitions
 ;; Window management
