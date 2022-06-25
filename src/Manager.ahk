@@ -610,8 +610,9 @@ Manager_onShellMessage(wParam, lParam) {
 
     ;; This is a workaround for a redrawing problem of the bug.n bar, which
     ;; seems to get lost, when windows are created or destroyed under the
-    ;; following conditions.
-    If (Manager_monitorCount > 1) And (Config_verticalBarPos = "tray") {
+    ;; following conditions: Manager_monitorCount > 1 And Config_verticalBarPos = "tray"
+    ;; i.e. when the bug.n bar is shownin more than one Windows Taskbar.
+    If (Manager_monitorCount > 1) {
       Loop, % (Manager_monitorCount - 1) {
         i := A_Index + 1
         Bar_updateLayout(i)

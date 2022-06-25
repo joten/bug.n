@@ -18,7 +18,7 @@ Bar_init(m) {
     wndWidth := Config_barWidth
 
   wndWidth := Round(wndWidth / mmngr1.monitors[m].scaleX)
-  If (Config_verticalBarPos = "tray" And Monitor_#%m%_taskBarClass) {
+  If (Monitor_#%m%_taskBarId) {
     Bar_ctrlHeight := Round(Bar_ctrlHeight / mmngr1.monitors[m].scaleY)
     Bar_height := Round(Bar_height / mmngr1.monitors[m].scaleY)
   }
@@ -61,8 +61,10 @@ Bar_init(m) {
     x1 := Config_horizontalBarPos
   Else If (Config_horizontalBarPos < 0)
     x1 := Monitor_#%m%_width - wndWidth * mmngr1.monitors[m].scaleX + Config_horizontalBarPos
-  If Not (Config_verticalBarPos = "tray" And Monitor_#%m%_taskBarClass)
+  If Not (Monitor_#%m%_taskBarId) {
     x1 += Monitor_#%m%_x
+    Monitor_#%m%_showBar := False
+  }
   x1 := Round(x1)
 
   Monitor_#%m%_barX := x1
@@ -75,28 +77,8 @@ Bar_init(m) {
   WinSet, Transparent, %Config_barTransparency%, %wndTitle%
   wndId := WinExist(wndTitle)
   Bar_appBarData := ""
-  If (Config_verticalBarPos = "tray" And Monitor_#%m%_taskBarClass) {
-    trayWndId := WinExist("ahk_class " Monitor_#%m%_taskBarClass)
-    DllCall("SetParent", "UInt", wndId, "UInt", trayWndId)
-  } Else {
-    appBarMsg := DllCall("RegisterWindowMessage", Str, "AppBarMsg")
-
-    ;; appBarData: http://msdn2.microsoft.com/en-us/library/ms538008.aspx
-    VarSetCapacity(Bar_appBarData, 36, 0)
-    offset := NumPut(             36, Bar_appBarData)
-    offset := NumPut(          wndId, offset+0)
-    offset := NumPut(      appBarMsg, offset+0)
-    offset := NumPut(              1, offset+0)
-    offset := NumPut(             x1, offset+0)
-    offset := NumPut(             y1, offset+0)
-    offset := NumPut(  x1 + wndWidth, offset+0)
-    offset := NumPut(y1 + Bar_height, offset+0)
-    offset := NumPut(              1, offset+0)
-
-    DllCall("Shell32.dll\SHAppBarMessage", "UInt", (ABM_NEW := 0x0)     , "UInt", &Bar_appBarData)
-    DllCall("Shell32.dll\SHAppBarMessage", "UInt", (ABM_QUERYPOS := 0x2), "UInt", &Bar_appBarData)
-    DllCall("Shell32.dll\SHAppBarMessage", "UInt", (ABM_SETPOS := 0x3)  , "UInt", &Bar_appBarData)
-    ;; SKAN: Crazy Scripting : Quick Launcher for Portable Apps (http://www.autohotkey.com/forum/topic22398.html)
+  If (Monitor_#%m%_taskBarId) {
+    DllCall("SetParent", "UInt", wndId, "UInt", Monitor_#%m%_taskBarId)
   }
 }
 
@@ -114,7 +96,7 @@ Bar_addElement(m, id, text, x, y1, width, backColor, foreColor, fontColor) {
 Bar_getHeight()
 {
   Global Bar_#0_#1, Bar_#0_#1H, Bar_#0_#2, Bar_#0_#2H, Bar_ctrlHeight, Bar_height, Bar_textHeight
-  Global Config_fontName, Config_fontSize, Config_singleRowBar, Config_spaciousBar, Config_verticalBarPos
+  Global Config_fontName, Config_fontSize, Config_singleRowBar
 
   wndTitle := "bug.n_BAR_0"
   Gui, 99: Default
@@ -122,31 +104,21 @@ Bar_getHeight()
   Gui, Add, Text, x0 y0 vBar_#0_#1, |
   GuiControlGet, Bar_#0_#1, Pos
   Bar_textHeight := Bar_#0_#1H
-  If Config_spaciousBar
-  {
-    Gui, Add, ComboBox, r9 x0 y0 vBar_#0_#2, |
-    GuiControlGet, Bar_#0_#2, Pos
-    Bar_ctrlHeight := Bar_#0_#2H
-  }
-  Else
-    Bar_ctrlHeight := Bar_textHeight
+  Bar_ctrlHeight := Bar_textHeight
   Gui, Destroy
 
   Bar_height := Bar_ctrlHeight
   If Not Config_singleRowBar
     Bar_height *= 2
-  If (Config_verticalBarPos = "tray")
-  {
-    WinGetPos, , , , buttonH, Start ahk_class Button
-    WinGetPos, , , , barH, ahk_class Shell_TrayWnd
-    If WinExist("Start ahk_class Button") And (buttonH < barH)
-      Bar_height := buttonH
-    Else
-      Bar_height := barH
-    Bar_ctrlHeight := Bar_height
-    If Not Config_singleRowBar
-      Bar_ctrlHeight := Bar_height / 2
-  }
+  WinGetPos, , , , buttonH, Start ahk_class Button
+  WinGetPos, , , , barH, ahk_class Shell_TrayWnd
+  If WinExist("Start ahk_class Button") And (buttonH < barH)
+    Bar_height := buttonH
+  Else
+    Bar_height := barH
+  Bar_ctrlHeight := Bar_height
+  If Not Config_singleRowBar
+    Bar_ctrlHeight := Bar_height / 2
 }
 
 Bar_getTextWidth(x, reverse=False)

@@ -14,8 +14,9 @@ Monitor_init(m, doRestore) {
   Monitor_#%m%_aView_#1 := 1
   Monitor_#%m%_aView_#2 := 1
   Monitor_#%m%_showBar  := Config_showBar
-  Monitor_#%m%_taskBarClass := ""
-  Monitor_#%m%_taskBarPos   := ""
+  Monitor_#%m%_taskBarClass := ""           ;; @TODO Is this needed any longer?
+  Monitor_#%m%_taskBarId    := ""
+  Monitor_#%m%_taskBarPos   := ""           ;; @TODO Is this needed any longer?
   Loop, % Config_viewCount
     View_init(m, A_Index)
   If doRestore
@@ -132,20 +133,23 @@ Monitor_getWorkArea(m) {
   Local monitor, monitorBottom, monitorLeft, monitorRight, monitorTop
   Local wndClasses, wndHeight, wndId, wndWidth, wndX, wndY
 
+  ;; @TODO Could we just ask for MonitorWorkArea and remove the code regarding positioning and Monitor_setWorkArea below?
   SysGet, monitor, Monitor, %m%
   
   wndClasses := "Shell_TrayWnd;Shell_SecondaryTrayWnd"
   ;; @TODO What about third and so forth TrayWnd?
+  ;; A third TrayWnd would have the window class "Shell_SecondaryTrayWnd".
   Loop, PARSE, wndClasses, `;
   {
-    wndId := WinExist("ahk_class " A_LoopField)
-    If wndId {
-      WinGetPos, wndX, wndY, wndWidth, wndHeight, ahk_id %wndId%
+    WinGet, wndId, List, % "ahk_class " A_LoopField
+    Loop, % wndId {
+      wnd := wndId%A_Index%
+      WinGetPos, wndX, wndY, wndWidth, wndHeight, ahk_id %wnd%
       x := wndX + wndWidth / 2
       y := wndY + wndHeight / 2
       If (x >= monitorLeft && x <= monitorRight && y >= monitorTop && y <= monitorBottom) {
-        If (A_LoopField = "Shell_TrayWnd") Or (A_LoopField = "Shell_SecondaryTrayWnd")
-          Monitor_#%m%_taskBarClass := A_LoopField
+        Monitor_#%m%_taskBarClass := A_LoopField    ;; @TODO Is taskBarClass needed any longer, with taskBarId set?
+        Monitor_#%m%_taskBarId    := wnd
         
         If (wndHeight < wndWidth) {
           ;; Horizontal
@@ -153,8 +157,7 @@ Monitor_getWorkArea(m) {
             ;; Top
             wndHeight += wndY - monitorTop
             monitorTop += wndHeight
-            If (A_LoopField = "Shell_TrayWnd") Or (A_LoopField = "Shell_SecondaryTrayWnd")
-              Monitor_#%m%_taskBarPos := "top"
+            Monitor_#%m%_taskBarPos := "top"        ;; @TODO Is taskBarPos needed any longer?
           } Else {
             ;; Bottom
             wndHeight := monitorBottom - wndY
@@ -177,14 +180,9 @@ Monitor_getWorkArea(m) {
   }
   bHeight := Round(Bar_height / Config_scalingFactor)
   bTop := 0
-  If (Config_verticalBarPos = "top") Or (Config_verticalBarPos = "tray") And Not Monitor_#%m%_taskBarClass {
+  If Not Monitor_#%m%_taskBarId {
     bTop := monitorTop
-    If Monitor_#%m%_showBar
-      monitorTop += bHeight
-  } Else If (Config_verticalBarPos = "bottom") {
-    bTop := monitorBottom - bHeight
-    If Monitor_#%m%_showBar
-      monitorBottom -= bHeight
+    Monitor_#%m%_showBar := False
   }
 
   Monitor_#%m%_height := monitorBottom - monitorTop
@@ -204,6 +202,7 @@ Monitor_moveToIndex(m, n) {
   Monitor_#%n%_name     := Monitor_#%m%_name
   Monitor_#%n%_showBar  := Monitor_#%m%_showBar
   Monitor_#%n%_taskBarClass := Monitor_#%m%_taskBarClass
+  Monitor_#%n%_taskBarId    := Monitor_#%m%_taskBarId
   Monitor_#%n%_taskBarPos   := Monitor_#%m%_taskBarPos
   Monitor_#%n%_height := Monitor_#%m%_height
   Monitor_#%n%_width  := Monitor_#%m%_width

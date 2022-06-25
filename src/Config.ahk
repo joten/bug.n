@@ -14,10 +14,8 @@ Config_init() {
   ;; Status bar
   Config_showBar           := True
   Config_horizontalBarPos  := "left"
-  Config_verticalBarPos    := "top"
   Config_barWidth          := "100%"
   Config_singleRowBar      := True
-  Config_spaciousBar       := False
   Config_fontName          := "Lucida Console"
   Config_fontSize          := 10
   Config_scalingFactor     := 96 / A_ScreenDPI            ;; Undocumented. It should not be set manually by the user,
