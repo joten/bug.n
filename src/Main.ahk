@@ -29,7 +29,7 @@ SetTitleMatchMode, 3          ;; `TitleMatchMode` may be set to `RegEx` to enabl
 SetWinDelay,      10          ;; `WinDelay` may be set to a different value e.g. 10, if necessary to prevent timing issues, but should be reset to 0 afterwards.
 
 ;; pseudo main function
-  Main := {appDir: "", configFile: "", logFile: "", layoutsFile: "", windowsFile: ""}
+  Main := {appDir: "", configFile: "", loggingFile: "", layoutsFile: "", windowsFile: ""}
   Main_setup()
   Config_init()
 
@@ -37,11 +37,13 @@ SetWinDelay,      10          ;; `WinDelay` may be set to a different value e.g.
   If (A_IsCompiled) {
     Menu, Tray, Icon, % A_ScriptFullPath, -159
   }
+  ;; Allow overwriting the icon, if using the executable.
   If (FileExist(A_ScriptDir . "\logo.ico")) {
     Menu, Tray, Icon, % A_ScriptDir . "\logo.ico"
   }
 
   Manager_init()
+  Logging_write(NAME . " started.", "Main")
 Return
 ;; end of the auto-execute section
 
@@ -99,7 +101,7 @@ Main_makeDir(dirName) {
 }
 
 Main_setup() {
-  Global Main
+  Global Logging, Main
 
   If (A_Args.Length() == 1) {
     Main.appDir := A_Args[1]
@@ -109,14 +111,18 @@ Main_setup() {
   }
   Main_makeDir(Main.appDir)
 
-  Main.logFile := Main.appDir . "\_log.txt"
   Main.sessionLayoutsFile := Main.appDir . "\_layouts.ini"
   Main.sessionWindowsFile := Main.appDir . "\_windows.ini"
   Main.configFile := Main.appDir . "\config.ini"
+
+  Logging__init(filename := Main.appDir . "\_logging.md")
+  Logging_writeCacheToFile(overwrite := True)
+  SetTimer, Logging_writeCacheToFile, % Logging.interval
 }
 
 #Include, %A_ScriptDir%\Bar.ahk
 #Include, %A_ScriptDir%\Config.ahk
+#Include, %A_ScriptDir%\logging.ahk
 #Include, %A_ScriptDir%\Manager.ahk
 #Include, %A_ScriptDir%\Monitor.ahk
 #Include, %A_ScriptDir%\Tiler.ahk
