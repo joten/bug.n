@@ -76,8 +76,7 @@ Config_init() {
   ;; Configuration management
   Config_autoSaveSession := "auto"                ;; "off" | "auto" | "ask"; `Config_autoSaveSession := False` is deprecated.
   Config_maintenanceInterval := 5000
-  Config_monitorDisplayChangeMessages := "ask"    ;; "off" | "on" | "ask"
-
+  
   Config_hotkeyCount := 0
   Config_restoreConfig(Main.configFile)
   

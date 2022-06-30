@@ -33,7 +33,6 @@ Manager_init()
   }
 
   mmngr1 := New MonitorManager()
-  mmngr2 := ""
   SysGet, Manager_monitorCount, MonitorCount
   Loop, % Manager_monitorCount
   {
@@ -426,26 +425,6 @@ Manager_moveWindow() {
   SendMessage, WM_SYSCOMMAND, SC_MOVE, , , ahk_id %aWndId%
 }
 
-Manager_onDisplayChange(a, wParam, uMsg, lParam) {
-  Local doChange := (Config_monitorDisplayChangeMessages = "on")
-  
-  If !(Config_monitorDisplayChangeMessages = "on" || Config_monitorDisplayChangeMessages = "off" || Config_monitorDisplayChangeMessages = 0) {
-    MsgBox, 291, , % "Would you like to reset the monitor configuration?`n'No' will only rearrange all active views.`n'Cancel' will result in no change."
-    IfMsgBox Yes
-      doChange := True
-    Else IfMsgBox No
-    {
-      Loop, % Manager_monitorCount {
-        View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
-        Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
-      }
-    }
-  }
-  If (doChange) {
-    Manager_resetMonitorConfiguration()
-  }
-}
-
 /*
   Possible indications for a ...
     new window: 1 (started by Windows Explorer) or 6 (started by cmd, shell or Win+E).
@@ -639,8 +618,6 @@ Manager_override(rule = "") {
 }
 
 Manager_registerShellHook() {
-  Global Config_monitorDisplayChangeMessages
-  
   WM_DISPLAYCHANGE := 126   ;; This message is sent when the display resolution has changed.
   Gui, +LastFound
   hWnd := WinExist()
@@ -649,75 +626,8 @@ Manager_registerShellHook() {
   DllCall("RegisterShellHookWindow", "UInt", hWnd)    ;; Minimum operating systems: Windows 2000 (http://msdn.microsoft.com/en-us/library/ms644989(VS.85).aspx)
   msgNum := DllCall("RegisterWindowMessage", "Str", "SHELLHOOK")
   OnMessage(msgNum, "Manager_onShellMessage")
-  If !(Config_monitorDisplayChangeMessages = "off" || Config_monitorDisplayChangeMessages = 0)
-    OnMessage(WM_DISPLAYCHANGE, "Manager_onDisplayChange")
 }
 ;; SKAN: How to Hook on to Shell to receive its messages? (http://www.autohotkey.com/forum/viewtopic.php?p=123323#123323)
-
-Manager_resetMonitorConfiguration() {
-  Local GuiN, hWnd, i, j, m, mPrimary, wndClass, wndIds, wndTitle
-
-  m := Manager_monitorCount
-  SysGet, Manager_monitorCount, MonitorCount
-  If (Manager_monitorCount < m) {
-    ;; A monitor has been disconnected. Which one?
-    i := Monitor_find(-1, m)
-    If (i > 0) {
-      SysGet, mPrimary, MonitorPrimary
-      GuiN := (m - 1) + 1
-      Gui, %GuiN%: Destroy
-      Loop, % Config_viewCount {
-        If View_#%i%_#%A_Index%_wndIds {
-          View_#%mPrimary%_#%A_Index%_wndIds .= View_#%i%_#%A_Index%_wndIds
-          StringTrimRight, wndIds, View_#%i%_#%A_Index%_wndIds, 1
-          Loop, PARSE, wndIds, `;
-          {
-            Window_#%A_LoopField%_monitor := mPrimary
-          }
-          If (Manager_aMonitor = i)
-            Manager_aMonitor := mPrimary
-        }
-      }
-      Loop, % m - i {
-        j := i + A_Index
-        Monitor_moveToIndex(j, j - 1)
-        Monitor_getWorkArea(j - 1)
-        Bar_init(j - 1)
-      }
-    }
-  } Else If (Manager_monitorCount > m) {
-    ;; A monitor has been connected. Where has it been put?
-    i := Monitor_find(+1, Manager_monitorCount)
-    If (i > 0) {
-      Loop, % Manager_monitorCount - i {
-        j := Manager_monitorCount - A_Index
-        Monitor_moveToIndex(j, j + 1)
-        Monitor_getWorkArea(j + 1)
-        Bar_init(j + 1)
-      }
-      Monitor_init(i, True)
-    }
-  } Else {
-    ;; Has the resolution of a monitor been changed?
-    mmngr2 := New MonitorManager()
-    Loop, % Manager_monitorCount {
-      Monitor_getWorkArea(A_Index)
-      Bar_init(A_Index)
-    }
-  }
-  Manager_saveState()
-  Loop, % Manager_monitorCount {
-    View_arrange(A_Index, Monitor_#%A_Index%_aView_#1)
-    Bar_updateView(A_Index, Monitor_#%A_Index%_aView_#1)
-  }
-  Manager__restoreWindowState(Main.sessionWindowsFile)
-
-  Gui, +LastFound
-  hWnd := WinExist()
-  WinGetClass, wndClass, ahk_id %hWnd%
-  WinGetTitle, wndTitle, ahk_id %hWnd%
-  DllCall("RegisterShellHookWindow", "UInt", hWnd)    ;; Minimum operating systems: Windows 2000 (http://msdn.microsoft.com/en-us/library/ms644989(VS.85).aspx)
-}
 
 ;; Restore previously saved window state.
 ;; If the state is completely different, this function won't do much. However, if restoring from a crash

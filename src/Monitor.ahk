@@ -98,19 +98,6 @@ Monitor_activateView(i, d = 0) {
   Manager_winActivate(wndId)
 }
 
-Monitor_find(d, n) {
-  Local mName
-  
-  If (d < 0 Or d > 0) {
-    Loop, % n {
-      SysGet, mName, MonitorName, %A_Index%
-      If Not (mName = Monitor_#%A_Index%_name)
-        Return, A_Index
-    }
-  }
-  Return, 0
-}
-
 Monitor_get(x, y)
 {
   Local m
@@ -192,25 +179,6 @@ Monitor_getWorkArea(m) {
   Monitor_#%m%_barY   := bTop
 
   Monitor_setWorkArea(monitorLeft, monitorTop, monitorRight, monitorBottom)
-}
-
-Monitor_moveToIndex(m, n) {
-  Global
-
-  Monitor_#%n%_aView_#1 := Monitor_#%m%_aView_#1
-  Monitor_#%n%_aView_#2 := Monitor_#%m%_aView_#2
-  Monitor_#%n%_name     := Monitor_#%m%_name
-  Monitor_#%n%_showBar  := Monitor_#%m%_showBar
-  Monitor_#%n%_taskBarClass := Monitor_#%m%_taskBarClass
-  Monitor_#%n%_taskBarId    := Monitor_#%m%_taskBarId
-  Monitor_#%n%_taskBarPos   := Monitor_#%m%_taskBarPos
-  Monitor_#%n%_height := Monitor_#%m%_height
-  Monitor_#%n%_width  := Monitor_#%m%_width
-  Monitor_#%n%_x      := Monitor_#%m%_x
-  Monitor_#%n%_y      := Monitor_#%m%_y
-  Monitor_#%n%_barY   := Monitor_#%m%_barY
-  Loop, % Config_viewCount
-    View_moveToIndex(m, A_Index, n, A_Index)
 }
 
 Monitor_setWindowTag(i, d = 0) {
