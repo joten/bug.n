@@ -519,15 +519,16 @@ Manager_onShellMessage(wParam, lParam) {
       Bar_updateView(Manager_aMonitor, Monitor_#%Manager_aMonitor%_aView_#1)
     }
 
+    WinGet, aWndId, ID, A
     If (Manager_monitorCount > 1 And a > -1)
     {
-      WinGet, aWndId, ID, A
       WinGetPos, aWndX, aWndY, aWndWidth, aWndHeight, ahk_id %aWndId%
       m := Monitor_get(aWndX + aWndWidth / 2, aWndY + aWndHeight / 2)
       ;; The currently active window defines the active monitor.
       If m
         Manager_aMonitor := m
     }
+    Bar_aWndId := aWndId
 
     If wndIds
     {    ;; If there are new (unrecognized) windows, which are hidden ...

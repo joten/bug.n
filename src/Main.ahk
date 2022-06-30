@@ -29,7 +29,7 @@ SetTitleMatchMode, 3          ;; `TitleMatchMode` may be set to `RegEx` to enabl
 SetWinDelay,      10          ;; `WinDelay` may be set to a different value e.g. 10, if necessary to prevent timing issues, but should be reset to 0 afterwards.
 
 ;; pseudo main function
-  Main := {appDir: "", configFile: "", loggingFile: "", layoutsFile: "", windowsFile: ""}
+  Main := {appDir: "", configFile: "", sessionLayoutsFile: "", sessionMonitorsFile: "", sessionWindowsFile: ""}
   Main_setup()
   Config_init()
 
@@ -37,11 +37,13 @@ SetWinDelay,      10          ;; `WinDelay` may be set to a different value e.g.
   If (A_IsCompiled) {
     Menu, Tray, Icon, % A_ScriptFullPath, -159
   }
-  ;; Allow overwriting the icon, if using the executable.
+  ;; Set the script's tray icon, also allowing to overwrite the icon, if using the executable.
   If (FileExist(A_ScriptDir . "\logo.ico")) {
     Menu, Tray, Icon, % A_ScriptDir . "\logo.ico"
   }
 
+  Monitor__init(filename := Main.sessionMonitorsFile)
+  Monitor_writeCacheToFile(True)
   Manager_init()
   Logging_write(NAME . " started.", "Main")
 Return
@@ -111,8 +113,9 @@ Main_setup() {
   }
   Main_makeDir(Main.appDir)
 
-  Main.sessionLayoutsFile := Main.appDir . "\_layouts.ini"
-  Main.sessionWindowsFile := Main.appDir . "\_windows.ini"
+  Main.sessionLayoutsFile  := Main.appDir . "\_layouts.ini"
+  Main.sessionMonitorsFile := Main.appDir . "\_monitors.ini"
+  Main.sessionWindowsFile  := Main.appDir . "\_windows.ini"
   Main.configFile := Main.appDir . "\config.ini"
 
   Logging__init(filename := Main.appDir . "\_logging.md")
