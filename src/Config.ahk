@@ -18,7 +18,7 @@ Config_init() {
   Config_singleRowBar      := True
   Config_fontName          := "Lucida Console"
   Config_fontSize          := 10
-  Config_scalingFactor     := 96 / A_ScreenDPI            ;; Undocumented. It should not be set manually by the user,
+  Config_scalingFactor     := A_ScreenDPI / 96            ;; Undocumented. It should not be set manually by the user,
                                                           ;; but is dependant on the setting in the `Display control panel` of Windows under `Appearance and Personalization`.
   Config_barTransparency   := "off"
   Config_backColor_#1 := "000000;000000;0;0;0;0;0;0;0"    ;; 1: <view>;<layout>   ;<title>;<shebang>;<time>;<date>;<anyText>;<batteryStatus>;<volumeLevel>

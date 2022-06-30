@@ -17,10 +17,10 @@ Bar_init(m) {
   } Else
     wndWidth := Config_barWidth
 
-  wndWidth := Round(wndWidth / mmngr1.monitors[m].scaleX)
+  wndWidth := Round(wndWidth / Config_scalingFactor)
   If (Monitor_#%m%_taskBarId) {
-    Bar_ctrlHeight := Round(Bar_ctrlHeight / mmngr1.monitors[m].scaleY)
-    Bar_height := Round(Bar_height / mmngr1.monitors[m].scaleY)
+    Bar_ctrlHeight := Round(Bar_ctrlHeight / Config_scalingFactor)
+    Bar_height := Round(Bar_height / Config_scalingFactor)
   }
 
   Monitor_#%m%_barWidth := wndWidth
@@ -54,13 +54,13 @@ Bar_init(m) {
   If (Config_horizontalBarPos = "left")
     x1 := 0
   Else If (Config_horizontalBarPos = "right")
-    x1 := Monitor_#%m%_width - wndWidth * mmngr1.monitors[m].scaleX
+    x1 := Monitor_#%m%_width - wndWidth * Config_scalingFactor
   Else If (Config_horizontalBarPos = "center")
-    x1 := (Monitor_#%m%_width - wndWidth * mmngr1.monitors[m].scaleX) / 2
+    x1 := (Monitor_#%m%_width - wndWidth * Config_scalingFactor) / 2
   Else If (Config_horizontalBarPos >= 0)
     x1 := Config_horizontalBarPos
   Else If (Config_horizontalBarPos < 0)
-    x1 := Monitor_#%m%_width - wndWidth * mmngr1.monitors[m].scaleX + Config_horizontalBarPos
+    x1 := Monitor_#%m%_width - wndWidth * Config_scalingFactor + Config_horizontalBarPos
   If Not (Monitor_#%m%_taskBarId) {
     x1 += Monitor_#%m%_x
     Monitor_#%m%_showBar := False
